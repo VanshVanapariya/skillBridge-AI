@@ -24,9 +24,14 @@ export const useAuth = () => {
         setLoading(true)
         try {
             const data = await login({ email, password })
-            setUser(data.user)
+            if (data) {
+                setUser(data.user)
+                return true
+            } else {
+                return false
+            }
         } catch (err) {
-
+            return false
         }
         finally {
             setLoading(false)
@@ -49,7 +54,11 @@ export const useAuth = () => {
     useEffect(() => {
         const getAndSetUser = async () => {
             const data = await getMe()
-            setUser(data.user)
+            if (data) {
+                setUser(data.user)
+            } else {
+                setUser(null)
+            }
             setLoading(false)
         }
         getAndSetUser()
