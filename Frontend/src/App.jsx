@@ -1,12 +1,16 @@
 import { RouterProvider } from "react-router-dom";
 import { router } from "./app.routs";
 import { AuthProvider } from "./features/auth/auth.context";
+import { InterviewProvider } from "./features/interview/interview.context";
+
 
 function App() {
 
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <InterviewProvider>
+        <RouterProvider router={router} />
+      </InterviewProvider>
     </AuthProvider>
   )
 }
