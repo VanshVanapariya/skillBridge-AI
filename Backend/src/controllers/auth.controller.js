@@ -143,6 +143,12 @@ async function getMeController(req, res) {
 
     const user = await userModel.findById(req.user.id)
 
+    if (!user) {
+        return res.status(404).json({
+            message: "User account not found."
+        })
+    }
+
     res.status(200).json({
         message: "User found successfully",
         user: {
