@@ -160,18 +160,18 @@ const Interview = () => {
 
 
     return (
-        <div className='w-full min-h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] font-sans flex items-stretch p-6 box-border relative'>
+        <div className='w-full min-h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] font-sans flex flex-col pt-20 pb-8 px-4 md:px-6 box-border relative'>
             <Header />
-            <div className='flex w-full max-w-[1280px] mx-auto mt-8 bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-2xl justify-between'>
+            <div className='flex flex-col lg:flex-row w-full max-w-[1280px] mx-auto mt-8 bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-2xl justify-between overflow-hidden'>
 
                 {/* ── Left Nav ── */}
-                <nav className='w-[220px] shrink-0 py-7 px-4 flex flex-col justify-between gap-1'>
-                    <div>
-                        <p className='text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] px-3 mb-2'>Sections</p>
+                <nav className='w-full lg:w-[220px] shrink-0 p-4 lg:py-7 lg:px-4 flex flex-col sm:flex-row lg:flex-col justify-between gap-3 lg:gap-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border-color)]'>
+                    <div className='flex flex-row lg:flex-col gap-1 overflow-x-auto flex-1 pb-2 sm:pb-0'>
+                        <p className='hidden lg:block text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] px-3 mb-2'>Sections</p>
                         {NAV_ITEMS.map(item => (
                             <button
                                 key={item.id}
-                                className={`flex items-center gap-2.5 w-full py-2.5 px-3 bg-transparent border-none rounded-lg text-[var(--color-text-muted)] font-sans text-sm cursor-pointer text-left transition-colors hover:bg-[var(--color-bg-panel)] hover:text-[var(--color-text-primary)] ${activeNav === item.id ? 'bg-[rgba(255,45,120,0.1)] text-[var(--color-accent)] hover:bg-[rgba(255,45,120,0.1)] hover:text-[var(--color-accent)] [&>span]:text-[var(--color-accent)]' : ''}`}
+                                className={`flex items-center gap-2.5 shrink-0 lg:w-full py-2 px-3 lg:py-2.5 lg:px-3 bg-transparent border-none rounded-lg text-[var(--color-text-muted)] font-sans text-xs sm:text-sm cursor-pointer text-left transition-colors hover:bg-[var(--color-bg-panel)] hover:text-[var(--color-text-primary)] ${activeNav === item.id ? 'bg-[rgba(255,45,120,0.1)] text-[var(--color-accent)] hover:bg-[rgba(255,45,120,0.1)] hover:text-[var(--color-accent)] [&>span]:text-[var(--color-accent)]' : ''}`}
                                 onClick={() => setActiveNav(item.id)}
                             >
                                 <span className='flex items-center shrink-0'>{item.icon}</span>
@@ -182,7 +182,7 @@ const Interview = () => {
                     <button
                         onClick={() => { getResumePdf(interviewId) }}
                         disabled={downloadLoading}
-                        className='flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gradient-to-br from-[var(--color-accent)] to-[#cc2460] text-white text-sm font-semibold border-none rounded-lg cursor-pointer hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed' >
+                        className='flex items-center justify-center gap-2 w-full sm:w-auto lg:w-full py-2.5 px-4 bg-gradient-to-br from-[var(--color-accent)] to-[#cc2460] text-white text-xs sm:text-sm font-semibold border-none rounded-lg cursor-pointer hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0' >
                         {downloadLoading ? (
                             <>
                                 <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
@@ -190,7 +190,7 @@ const Interview = () => {
                             </>
                         ) : (
                             <>
-                                <svg height={"0.8rem"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z"></path></svg>
+                                <svg height={"0.8rem"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z"></path></svg>
                                 Download Resume
                             </>
                         )}
@@ -200,7 +200,7 @@ const Interview = () => {
                 <div className='w-px bg-[var(--color-border-color)] shrink-0' />
 
                 {/* ── Center Content ── */}
-                <main className='flex-1 py-7 px-8 overflow-y-auto max-h-[calc(100vh-3rem)] pb-20 items-start'>
+                <main className='flex-1 py-6 px-4 sm:py-7 sm:px-8 lg:overflow-y-auto lg:max-h-[calc(100vh-3rem)] pb-12 lg:pb-20 items-start'>
                     {activeNav === 'technical' && (
                         <section className='min-h-full'>
                             <div className='flex items-center gap-3 mb-6 pb-4 border-b border-[var(--color-border-color)]'>
@@ -282,13 +282,13 @@ const Interview = () => {
                     )}
                 </main>
 
-                <div className='w-px bg-[var(--color-border-color)] shrink-0' />
+                <div className='hidden lg:block w-px bg-[var(--color-border-color)] shrink-0' />
 
                 {/* ── Right Sidebar ── */}
-                <aside className='w-[240px] shrink-0 py-7 px-5 flex flex-col gap-5'>
+                <aside className='w-full lg:w-[240px] shrink-0 p-5 lg:py-7 lg:px-5 flex flex-col sm:flex-row lg:flex-col justify-around lg:justify-start gap-6 lg:gap-5 border-t lg:border-t-0 lg:border-l border-[var(--color-border-color)]'>
 
                     {/* Match Score */}
-                    <div className='flex flex-col items-center gap-2.5'>
+                    <div className='flex flex-col items-center gap-2.5 flex-1 max-w-[200px] lg:max-w-none'>
                         <p className='text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] m-0 self-start'>Match Score</p>
                         <div className={`w-[90px] h-[90px] rounded-full flex items-center justify-center border-4 ${scoreColor}`}>
                             <span className='text-2xl font-extrabold text-[var(--color-text-primary)] leading-none'>
@@ -299,10 +299,10 @@ const Interview = () => {
                         <p className={`m-0 text-[0.75rem] ${scoreTextColor} text-center`}>{scoreText}</p>
                     </div>
 
-                    <div className='h-px bg-[var(--color-border-color)]' />
+                    <div className='hidden lg:block h-px bg-[var(--color-border-color)]' />
 
                     {/* Skill Gaps */}
-                    <div className='flex flex-col gap-3'>
+                    <div className='flex flex-col gap-3 flex-1'>
                         <p className='text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] m-0'>Skill Gaps</p>
                         <div className='flex flex-wrap gap-2'>
                             {report.skillGaps.map((gap, i) => (

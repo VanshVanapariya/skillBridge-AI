@@ -67,7 +67,7 @@ const Home = () => {
     }
 
     return (
-        <div className='w-full min-h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] font-sans flex flex-col items-center justify-center py-12 px-6 gap-8 relative'>
+        <div className='w-full min-h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] font-sans flex flex-col items-center justify-center pt-24 pb-12 px-4 sm:px-6 gap-8 relative'>
             <Header />
 
             {/* Page Header */}
@@ -85,7 +85,7 @@ const Home = () => {
                 <div className='flex flex-col md:flex-row min-h-[520px]'>
 
                     {/* Left Panel - Job Description */}
-                    <div className='flex-1 flex flex-col gap-4 p-6 relative'>
+                    <div className='flex-1 flex flex-col gap-4 p-6'>
                         <div className='flex items-center gap-2 mb-1'>
                             <span className='flex items-center text-[var(--color-accent)]'>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
@@ -93,13 +93,16 @@ const Home = () => {
                             <h2 className='text-base font-semibold text-[var(--color-text-primary)] flex-1 m-0'>Target Job Description</h2>
                             <span className='text-[0.7rem] font-semibold py-0.5 px-2 rounded uppercase tracking-wider bg-[rgba(255,45,120,0.15)] text-[var(--color-accent)] border border-[rgba(255,45,120,0.3)]'>Required</span>
                         </div>
-                        <textarea
-                            onChange={(e) => { setJobDescription(e.target.value) }}
-                            className='flex-1 w-full bg-[var(--color-bg-input)] border border-[var(--color-border-color)] rounded-lg py-3 px-4 text-[var(--color-text-primary)] text-sm resize-none outline-none focus:border-[var(--color-accent)] transition-colors leading-relaxed placeholder-[var(--color-text-muted)]'
-                            placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
-                            maxLength={5000}
-                        />
-                        <div className='absolute bottom-9 right-8 text-xs text-[var(--color-text-muted)]'>0 / 5000 chars</div>
+                        <div className='flex-1 flex flex-col gap-1.5 min-h-[300px] md:min-h-none'>
+                            <textarea
+                                onChange={(e) => { setJobDescription(e.target.value) }}
+                                value={jobDescription}
+                                className='flex-1 w-full bg-[var(--color-bg-input)] border border-[var(--color-border-color)] rounded-lg py-3 px-4 text-[var(--color-text-primary)] text-sm resize-none outline-none focus:border-[var(--color-accent)] transition-colors leading-relaxed placeholder-[var(--color-text-muted)]'
+                                placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
+                                maxLength={5000}
+                            />
+                            <div className='text-right text-xs text-[var(--color-text-muted)]'>{jobDescription.length} / 5000 chars</div>
+                        </div>
                     </div>
 
                     {/* Vertical Divider */}
