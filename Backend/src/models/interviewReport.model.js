@@ -43,9 +43,21 @@ const skillGapSchema = new mongoose.Schema({
 }, { _id: false })
 
 const preparationPlanSchema = new mongoose.Schema({
+    phaseNumber: {
+        type: Number,
+        required: false,
+    },
+    phaseName: {
+        type: String,
+        required: false,
+    },
+    durationEstimate: {
+        type: String,
+        required: false,
+    },
     day: {
         type: Number,
-        required: [true, "Day is required"],
+        required: false,
     },
     focus: {
         type: String,
@@ -79,7 +91,8 @@ const interviewReportSchema = new mongoose.Schema({
     preparationPlan: [preparationPlanSchema],
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "users"
+        ref: "users",
+        index: true
     },
     title: {
         type: String,

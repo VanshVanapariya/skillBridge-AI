@@ -2,6 +2,8 @@ const userModel = require("../models/user.model")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const tokenBlacklistModel = require("../models/blacklist.model")
+const crypto = require("crypto")
+const { sendPasswordResetEmail } = require("../services/email.service")
 
 /**
  * @name registerUserController
@@ -41,7 +43,12 @@ async function registerUserController(req, res) {
         { expiresIn: "1d" }
     )
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
+    })
 
     res.status(201).json({
         message: "User registered successfully",
@@ -83,7 +90,12 @@ async function loginUserController(req, res) {
         { expiresIn: "1d" }
     )
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
+    })
     res.status(200).json({
         message: "User loggedIn successfully.",
         user: {
@@ -134,9 +146,68 @@ async function getMeController(req, res) {
     })
 }
 
+async function forgotPasswordController(req, res) {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: "Please provide an email" });
+    }
+
+    const user = await userModel.findOne({ email });
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+
+    await user.save();
+
+    try {
+        await sendPasswordResetEmail(user.email, resetToken);
+        res.status(200).json({ message: "Password reset email sent" });
+    } catch (error) {
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        return res.status(500).json({ message: "Error sending email" });
+    }
+}
+
+async function resetPasswordController(req, res) {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password) {
+        return res.status(400).json({ message: "Please provide a new password" });
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await userModel.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        return res.status(400).json({ message: "Token is invalid or has expired" });
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successfully" });
+}
+
 module.exports = {
     registerUserController,
     loginUserController,
     logoutUserController,
-    getMeController
+    getMeController,
+    forgotPasswordController,
+    resetPasswordController
 }

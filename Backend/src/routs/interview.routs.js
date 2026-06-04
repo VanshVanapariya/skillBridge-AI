@@ -10,7 +10,6 @@ const interviewRouter = express.Router()
  * @description Generate new interview report on the basis of user self description,resume pdf and job description.
  * @access Private
  */
-
 interviewRouter.post("/", authMiddleware.authUser, upload.single("resume"), interviewController.generateInterviewReportController)
 
 /**
@@ -27,5 +26,26 @@ interviewRouter.get("/report/:interviewId", authMiddleware.authUser, interviewCo
  * @access private
  */
 interviewRouter.get("/", authMiddleware.authUser, interviewController.getAllInterviewReportsController)
+
+/**
+ * @route GET /api/interview/resume/pdf
+ * @description generate resume pdf on the basis of user self description, resume content and job description.
+ * @access private
+ */
+interviewRouter.post("/resume/pdf/:interviewId", authMiddleware.authUser, interviewController.generateResumePdfController)
+
+/**
+ * @route DELETE /api/interview/:interviewId
+ * @description Delete an interview report by ID.
+ * @access private
+ */
+interviewRouter.delete("/:interviewId", authMiddleware.authUser, interviewController.deleteInterviewReportController)
+
+/**
+ * @route POST /api/interview/questions/regenerate/:interviewId
+ * @description Regenerate questions.
+ * @access private
+ */
+interviewRouter.post("/questions/regenerate/:interviewId", authMiddleware.authUser, interviewController.regenerateQuestionsController)
 
 module.exports = interviewRouter

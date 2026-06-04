@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
-import "../style/home.scss"
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate } from 'react-router'
+import Header from '../../../components/Header'
 
 const LOADING_MESSAGES = [
     "Analyzing job requirements...",
@@ -24,17 +24,17 @@ const InteractiveLoader = () => {
     }, [])
 
     return (
-        <main className='loading-screen'>
-            <div className='spinner'></div>
-            <h2>{LOADING_MESSAGES[msgIndex]}</h2>
-            <p>This usually takes few seconds.</p>
+        <main className='w-full min-h-screen flex flex-col items-center justify-center gap-6 bg-[var(--color-bg-page)]'>
+            <div className='w-12 h-12 border-4 border-[rgba(255,45,120,0.2)] border-t-[var(--color-accent)] rounded-full animate-spin'></div>
+            <h2 className='text-2xl font-semibold text-[var(--color-text-primary)] m-0 text-center animate-pulse'>{LOADING_MESSAGES[msgIndex]}</h2>
+            <p className='text-[var(--color-text-muted)] text-sm m-0'>This usually takes few seconds.</p>
         </main>
     )
 }
 
 const Home = () => {
 
-    const { loading, generateReport, reports } = useInterview()
+    const { loading, generateReport, reports, deleteReport } = useInterview()
     const [jobDescription, setJobDescription] = useState("")
     const [selfDescription, setSelfDescription] = useState("")
     const [fileName, setFileName] = useState("")
@@ -49,9 +49,15 @@ const Home = () => {
     }
 
     const handleGenerateReport = async () => {
-        const resumeFile = resumeInputRef.current.files[0]
-        const data = await generateReport({ jobDescription, selfDescription, resumeFile })
-        navigate(`/interview/${data._id}`)
+        try {
+            const resumeFile = resumeInputRef.current?.files[0]
+            const data = await generateReport({ jobDescription, selfDescription, resumeFile })
+            if (data && data._id) {
+                navigate(`/interview/${data._id}`)
+            }
+        } catch (error) {
+            alert(error.response?.data?.message || "Failed to generate interview report. The AI service might be busy (Rate Limit). Please wait a moment and try again.")
+        }
     }
 
     const isFormValid = jobDescription.trim().length > 0 && (selfDescription.trim().length > 0 || fileName !== "")
@@ -61,73 +67,78 @@ const Home = () => {
     }
 
     return (
-        <div className='home-page'>
+        <div className='w-full min-h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] font-sans flex flex-col items-center justify-center py-12 px-6 gap-8 relative'>
+            <Header />
 
             {/* Page Header */}
-            <header className='page-header'>
-                <h1>Create Your Custom <span className='highlight'>Interview Plan</span></h1>
-                <p>Let our AI analyze the job requirements and your unique profile to build a winning strategy.</p>
+            <header className='text-center'>
+                <h1 className='text-4xl font-bold mb-2 text-[var(--color-text-primary)]'>
+                    Create Your Custom <span className='text-[var(--color-accent)]'>Interview Plan</span>
+                </h1>
+                <p className='text-[var(--color-text-muted)] text-[0.95rem] max-w-lg mx-auto leading-relaxed'>
+                    Let our AI analyze the job requirements and your unique profile to build a winning strategy.
+                </p>
             </header>
 
             {/* Main Card */}
-            <div className='interview-card'>
-                <div className='interview-card__body'>
+            <div className='w-full max-w-[900px] bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-2xl overflow-hidden'>
+                <div className='flex flex-col md:flex-row min-h-[520px]'>
 
                     {/* Left Panel - Job Description */}
-                    <div className='panel panel--left'>
-                        <div className='panel__header'>
-                            <span className='panel__icon'>
+                    <div className='flex-1 flex flex-col gap-4 p-6 relative'>
+                        <div className='flex items-center gap-2 mb-1'>
+                            <span className='flex items-center text-[var(--color-accent)]'>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
                             </span>
-                            <h2>Target Job Description</h2>
-                            <span className='badge badge--required'>Required</span>
+                            <h2 className='text-base font-semibold text-[var(--color-text-primary)] flex-1 m-0'>Target Job Description</h2>
+                            <span className='text-[0.7rem] font-semibold py-0.5 px-2 rounded uppercase tracking-wider bg-[rgba(255,45,120,0.15)] text-[var(--color-accent)] border border-[rgba(255,45,120,0.3)]'>Required</span>
                         </div>
                         <textarea
                             onChange={(e) => { setJobDescription(e.target.value) }}
-                            className='panel__textarea'
+                            className='flex-1 w-full bg-[var(--color-bg-input)] border border-[var(--color-border-color)] rounded-lg py-3 px-4 text-[var(--color-text-primary)] text-sm resize-none outline-none focus:border-[var(--color-accent)] transition-colors leading-relaxed placeholder-[var(--color-text-muted)]'
                             placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
                             maxLength={5000}
                         />
-                        <div className='char-counter'>0 / 5000 chars</div>
+                        <div className='absolute bottom-9 right-8 text-xs text-[var(--color-text-muted)]'>0 / 5000 chars</div>
                     </div>
 
                     {/* Vertical Divider */}
-                    <div className='panel-divider' />
+                    <div className='w-px bg-[var(--color-border-color)] shrink-0 hidden md:block' />
 
                     {/* Right Panel - Profile */}
-                    <div className='panel panel--right'>
-                        <div className='panel__header'>
-                            <span className='panel__icon'>
+                    <div className='flex-1 flex flex-col gap-3 p-6'>
+                        <div className='flex items-center gap-2 mb-1'>
+                            <span className='flex items-center text-[var(--color-accent)]'>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                             </span>
-                            <h2>Your Profile</h2>
+                            <h2 className='text-base font-semibold text-[var(--color-text-primary)] flex-1 m-0'>Your Profile</h2>
                         </div>
 
                         {/* Upload Resume */}
-                        <div className='upload-section'>
-                            <label className='section-label'>
+                        <div className='flex flex-col gap-2 flex-1'>
+                            <label className='flex items-center gap-2 text-sm font-medium text-[var(--color-text-primary)] mb-1'>
                                 Upload Resume
-                                <span className='badge badge--best'>Best Results</span>
+                                <span className='text-[0.7rem] font-semibold py-0.5 px-2 rounded uppercase tracking-wider bg-[rgba(255,45,120,0.15)] text-[var(--color-accent)] border border-[rgba(255,45,120,0.3)]'>Best Results</span>
                             </label>
-                            <label className='dropzone' htmlFor='resume'>
+                            <label className='flex-1 flex flex-col items-center justify-center gap-1.5 p-6 bg-[var(--color-bg-input)] border-2 border-dashed border-[var(--color-border-color)] rounded-lg cursor-pointer hover:border-[var(--color-accent)] hover:bg-[rgba(255,45,120,0.05)] transition-colors' htmlFor='resume'>
                                 {fileName ? (
                                     <>
-                                        <span className='dropzone__icon' style={{ color: '#ff2d78' }}>
+                                        <span className='text-[var(--color-accent)] mb-1'>
                                             {/* Success Checkmark Icon */}
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 15l2 2 4-4" /></svg>
                                         </span>
-                                        <p className='dropzone__title' style={{ color: '#ff2d78', fontWeight: 600 }}>
+                                        <p className='text-sm font-semibold text-[var(--color-accent)] m-0'>
                                             {fileName}
                                         </p>
-                                        <p className='dropzone__subtitle'>Click to change file</p>
+                                        <p className='text-xs text-[var(--color-text-muted)] m-0'>Click to change file</p>
                                     </>
                                 ) : (
                                     <>
-                                        <span className='dropzone__icon'>
+                                        <span className='text-[var(--color-accent)] mb-1'>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
                                         </span>
-                                        <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
-                                        <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
+                                        <p className='text-sm font-medium text-[var(--color-text-primary)] m-0'>Click to upload or drag &amp; drop</p>
+                                        <p className='text-xs text-[var(--color-text-muted)] m-0'>PDF or DOCX (Max 5MB)</p>
                                     </>
                                 )}
                                 <input onChange={handleFileChange} ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' />
@@ -135,37 +146,39 @@ const Home = () => {
                         </div>
 
                         {/* OR Divider */}
-                        <div className='or-divider'><span>OR</span></div>
+                        <div className='flex items-center gap-3 text-[var(--color-text-muted)] text-xs before:content-[""] before:flex-1 before:h-px before:bg-[var(--color-border-color)] after:content-[""] after:flex-1 after:h-px after:bg-[var(--color-border-color)] whitespace-nowrap'>
+                            <span>OR</span>
+                        </div>
 
                         {/* Quick Self-Description */}
-                        <div className='self-description'>
-                            <label className='section-label' htmlFor='selfDescription'>Quick Self-Description</label>
+                        <div className='flex flex-col gap-2'>
+                            <label className='flex items-center gap-2 text-sm font-medium text-[var(--color-text-primary)] mb-1' htmlFor='selfDescription'>Quick Self-Description</label>
                             <textarea
                                 onChange={(e) => { setSelfDescription(e.target.value) }}
                                 id='selfDescription'
                                 name='selfDescription'
-                                className='panel__textarea panel__textarea--short'
+                                className='flex-none h-24 w-full bg-[var(--color-bg-input)] border border-[var(--color-border-color)] rounded-lg py-3 px-4 text-[var(--color-text-primary)] text-sm resize-none outline-none focus:border-[var(--color-accent)] transition-colors leading-relaxed placeholder-[var(--color-text-muted)]'
                                 placeholder="Briefly describe your experience, key skills, and years of experience if you don't have a resume handy..."
                             />
                         </div>
 
                         {/* Info Box */}
-                        <div className='info-box'>
-                            <span className='info-box__icon'>
+                        <div className='flex items-start gap-2.5 p-3 bg-[var(--color-info-bg)] border border-[var(--color-info-border)] rounded-lg'>
+                            <span className='shrink-0 text-[#4a90e2] mt-px'>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" stroke="#1a1f27" strokeWidth="2" /><line x1="12" y1="16" x2="12.01" y2="16" stroke="#1a1f27" strokeWidth="2" /></svg>
                             </span>
-                            <p>Either a <strong>Resume</strong> or a <strong>Self Description</strong> is required to generate a personalized plan.</p>
+                            <p className='m-0 text-xs text-[#8ab4f8] leading-relaxed'>Either a <strong className='text-[var(--color-text-primary)]'>Resume</strong> or a <strong className='text-[var(--color-text-primary)]'>Self Description</strong> is required to generate a personalized plan.</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className='interview-card__footer'>
-                    <span className='footer-info'>AI-Powered Strategy Generation &bull; Approx 30s</span>
+                <div className='flex items-center justify-between p-4 px-6 border-t border-[var(--color-border-color)]'>
+                    <span className='text-xs text-[var(--color-text-muted)]'>Personalized Interview Plan</span>
                     <button
                         disabled={!isFormValid}
                         onClick={handleGenerateReport}
-                        className='generate-btn'>
+                        className='flex items-center gap-2 py-3 px-6 bg-gradient-to-br from-[var(--color-accent)] to-[#cc2460] text-white text-sm font-semibold border-none rounded-lg cursor-pointer hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale transition-all'>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" /></svg>
                         Generate My Interview Strategy
                     </button>
@@ -174,26 +187,26 @@ const Home = () => {
 
             {/* Recent Reports List */}
             {reports.length > 0 && (
-                <section className='recent-reports'>
-                    <h2>My Recent Interview Plans</h2>
-                    <ul className='reports-list'>
+                <section className='flex flex-col gap-3 w-full max-w-[900px]'>
+                    <h2 className='text-xl font-bold m-0 text-[var(--color-text-primary)]'>My Recent Interview Plans</h2>
+                    <ul className='flex gap-3 flex-wrap p-0 m-0 list-none'>
                         {reports.map(report => (
-                            <li key={report._id} className='report-item' onClick={() => navigate(`/interview/${report._id}`)}>
-                                <h3>{report.title || 'Untitled Position'}</h3>
-                                <p className='report-meta'>Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
-                                <p className={`match-score ${report.matchScore >= 80 ? 'score--high' : report.matchScore >= 60 ? 'score--mid' : 'score--low'}`}>Match Score: {report.matchScore}%</p>
+                            <li key={report._id} className='group relative bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-lg p-4 flex-1 flex flex-col gap-2 cursor-pointer shrink-0 min-w-[250px]' onClick={() => navigate(`/interview/${report._id}`)}>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); deleteReport(report._id); }}
+                                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-600 rounded-md transition-all border-none cursor-pointer"
+                                    title="Delete plan"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button>
+                                <h3 className='text-base font-semibold m-0 text-[var(--color-text-primary)] pr-8'>{report.title || 'Untitled Position'}</h3>
+                                <p className='text-sm text-[var(--color-text-muted)] m-0'>Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
+                                <p className={`text-xs font-semibold m-0 ${report.matchScore >= 80 ? 'text-[var(--color-severity-low)]' : report.matchScore >= 60 ? 'text-[var(--color-severity-medium)]' : 'text-[var(--color-severity-high)]'}`}>Match Score: {report.matchScore}%</p>
                             </li>
                         ))}
                     </ul>
                 </section>
             )}
-
-            {/* Page Footer */}
-            <footer className='page-footer'>
-                <a href='#'>Privacy Policy</a>
-                <a href='#'>Terms of Service</a>
-                <a href='#'>Help Center</a>
-            </footer>
         </div>
     )
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
     withCredentials: true,
 })
 
@@ -40,5 +40,32 @@ export const getInterviewReportById = async (interviewId) => {
 export const getAllInterviewReports = async () => {
     const response = await api.get("/api/interview/")
 
+    return response.data
+}
+
+/**
+ * @description Service to generate resume pdf based on user self description, resume content and job description.
+ */
+export const generateResumePdf = async ({ interviewId }) => {
+    const response = await api.post(`/api/interview/resume/pdf/${interviewId}`, {}, {
+        responseType: "blob"
+    })
+
+    return response.data
+}
+
+/**
+ * @description Service to delete an interview report by interviewId.
+ */
+export const deleteInterviewReport = async (interviewId) => {
+    const response = await api.delete(`/api/interview/${interviewId}`)
+    return response.data
+}
+
+/**
+ * @description Service to regenerate questions.
+ */
+export const regenerateQuestions = async (interviewId, type) => {
+    const response = await api.post(`/api/interview/questions/regenerate/${interviewId}`, { type })
     return response.data
 }
