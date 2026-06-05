@@ -7,6 +7,9 @@ const logger = require('./utils/logger')
 
 const app = express()
 
+// Trust proxy to allow express-rate-limit to get the correct client IP on Render
+app.set('trust proxy', 1)
+
 app.use(helmet())
 
 // Define Rate Limiters
