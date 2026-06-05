@@ -288,7 +288,7 @@ const Interview = () => {
                 <aside className='w-full lg:w-[240px] shrink-0 p-5 lg:py-7 lg:px-5 flex flex-col sm:flex-row lg:flex-col justify-around lg:justify-start gap-6 lg:gap-5 border-t lg:border-t-0 lg:border-l border-[var(--color-border-color)]'>
 
                     {/* Match Score */}
-                    <div className='flex flex-col items-center gap-2.5 flex-1 max-w-[200px] lg:max-w-none'>
+                    <div className='flex flex-col items-center gap-2.5 flex-1 lg:flex-none max-w-[200px] lg:max-w-none mb-5'>
                         <p className='text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] m-0 self-start'>Match Score</p>
                         <div className={`w-[90px] h-[90px] rounded-full flex items-center justify-center border-4 ${scoreColor}`}>
                             <span className='text-2xl font-extrabold text-[var(--color-text-primary)] leading-none'>
@@ -302,7 +302,7 @@ const Interview = () => {
                     <div className='hidden lg:block h-px bg-[var(--color-border-color)]' />
 
                     {/* Skill Gaps */}
-                    <div className='flex flex-col gap-3 flex-1'>
+                    <div className='flex flex-col gap-3 flex-1 lg:flex-none'>
                         <p className='text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] m-0'>Skill Gaps</p>
                         <div className='flex flex-wrap gap-2'>
                             {report.skillGaps.map((gap, i) => (
