@@ -32,7 +32,7 @@ const aiLimiter = rateLimit({
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "https://skill-bridge-ai-silk.vercel.app",
+    origin: process.env.FRONTEND_URL || "https://skillbridge-ai-prep.vercel.app",
     credentials: true
 }))
 
