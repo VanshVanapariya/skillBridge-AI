@@ -36,6 +36,11 @@ app.use(cors({
     credentials: true
 }))
 
+// Health check endpoint for UptimeRobot monitoring
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "OK", message: "Server is healthy" })
+})
+
 /* require all the routes here */
 const authRouter = require("./routs/auth.routs")
 const interviewRouter = require("./routs/interview.routs")
