@@ -154,3 +154,12 @@ skillBridge-AI/
 | **POST** | `/resume/pdf/:interviewId` | Private | Generate and download tailored resume PDF |
 | **POST** | `/questions/regenerate/:interviewId` | Private | Regenerate interview practice questions |
 | **DELETE** | `/:interviewId` | Private | Delete a report by ID |
+
+---
+
+## 👨‍💻 Author
+
+**Vansh Vanapariya**
+- **GitHub**: [VanshVanapariya](https://github.com/VanshVanapariya)
+- **LinkedIn**: [Vansh Vanapariya](https://www.linkedin.com/in/vansh-vanapariya-12556228b/)
+- **Email**: [vanshvanapariya268@gmail.com](mailto:vanshvanapariya268@gmail.com)
