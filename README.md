@@ -1,5 +1,7 @@
 # 🚀 SkillBridge AI
 
+### 🔗 [Live Demo](https://skillbridge-ai-prep.vercel.app/)
+
 **SkillBridge AI** is a complete, AI-powered interview preparation platform designed to bridge the gap between job candidates and their target roles. By leveraging **Google Gemini AI** and **Puppeteer**, the platform parses uploaded resume PDFs, evaluates them against target Job Descriptions (JDs), identifies critical skill gaps, creates personalized preparation roadmaps, and builds recruiter-ready tailored resumes.
 
 ---
