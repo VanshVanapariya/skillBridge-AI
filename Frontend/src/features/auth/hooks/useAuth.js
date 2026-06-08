@@ -45,7 +45,7 @@ export const useAuth = () => {
         try {
             await logout()
             setUser(null)
-            navigate("/login")
+            navigate("/landing")
         } catch (err) {
 
         }

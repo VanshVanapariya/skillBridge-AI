@@ -18,7 +18,13 @@ const InteractiveLoader = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setMsgIndex(prev => (prev + 1) % LOADING_MESSAGES.length)
+            setMsgIndex(prev => {
+                if (prev >= LOADING_MESSAGES.length - 1) {
+                    clearInterval(interval)
+                    return prev
+                }
+                return prev + 1
+            })
         }, 4000)
         return () => clearInterval(interval)
     }, [])
