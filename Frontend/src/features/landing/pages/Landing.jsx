@@ -148,15 +148,15 @@ const Landing = () => {
                     : 'bg-transparent'
                     }`}
             >
-                <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 flex items-center justify-between">
                     {/* Logo */}
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-purple-600 flex items-center justify-center shadow-lg shadow-[rgba(255,45,120,0.4)]">
                             <svg className="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
                             </svg>
                         </div>
-                        <span className="font-bold text-base tracking-tight text-[var(--color-text-primary)]">SkillBridge AI</span>
+                        <span className="font-bold text-sm sm:text-base tracking-tight text-[var(--color-text-primary)] whitespace-nowrap">SkillBridge AI</span>
                     </div>
 
                     {/* Nav Links */}
@@ -166,16 +166,16 @@ const Landing = () => {
                     </div>
 
                     {/* CTA Buttons */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 sm:gap-3">
                         <button
                             onClick={() => navigate('/login')}
-                            className="text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer bg-transparent border-none px-2"
+                            className="text-xs sm:text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer bg-transparent border-none px-1 sm:px-2 whitespace-nowrap"
                         >
                             Sign in
                         </button>
                         <button
                             onClick={() => navigate('/register')}
-                            className="text-sm font-semibold text-white px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-purple-600 hover:opacity-90 transition-all shadow-[0_4px_16px_rgba(255,45,120,0.35)] cursor-pointer border-none"
+                            className="text-xs sm:text-sm font-semibold text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-purple-600 hover:opacity-90 transition-all shadow-[0_4px_16px_rgba(255,45,120,0.35)] cursor-pointer border-none whitespace-nowrap"
                         >
                             Get Started
                         </button>
@@ -220,34 +220,37 @@ const Landing = () => {
                     </div>
 
                     {/* Headline */}
-                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-                        {"Walk in ".slice(0, charCount)}
-                        {charCount < 8 && <Cursor />}
-                        {charCount >= 8 && (
-                            <span
-                                className="bg-clip-text text-transparent"
-                                style={{ backgroundImage: 'linear-gradient(135deg, var(--color-accent), #a855f7, #3b82f6)' }}
-                            >
-                                {"prepared.".slice(0, charCount - 8)}
-                            </span>
-                        )}
-                        {charCount >= 8 && charCount < 17 && <Cursor />}
-                        <br />
+                    <h1 className="text-xl min-[410px]:text-2xl min-[480px]:text-3xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.2] sm:leading-[1.05] flex flex-col items-center gap-1 sm:gap-2">
+                        {/* Line 1 */}
+                        <span className="block whitespace-nowrap">
+                            {"Walk in ".slice(0, charCount)}
+                            {charCount < 8 && <Cursor />}
+                            {charCount >= 8 && (
+                                <span
+                                    className="bg-clip-text text-transparent"
+                                    style={{ backgroundImage: 'linear-gradient(135deg, var(--color-accent), #a855f7, #3b82f6)' }}
+                                >
+                                    {"prepared.".slice(0, charCount - 8)}
+                                </span>
+                            )}
+                            {charCount >= 8 && charCount < 17 && <Cursor />}
+                        </span>
+                        {/* Line 2 */}
                         {charCount >= 17 && (
-                            <>
+                            <span className="block whitespace-nowrap">
                                 {"Walk out with the ".slice(0, charCount - 17)}
                                 {charCount >= 17 && charCount < 35 && <Cursor />}
-                            </>
-                        )}
-                        {charCount >= 35 && (
-                            <span
-                                className="bg-clip-text text-transparent"
-                                style={{ backgroundImage: 'linear-gradient(135deg, var(--color-accent), #a855f7, #3b82f6)' }}
-                            >
-                                {"offer.".slice(0, charCount - 35)}
+                                {charCount >= 35 && (
+                                    <span
+                                        className="bg-clip-text text-transparent"
+                                        style={{ backgroundImage: 'linear-gradient(135deg, var(--color-accent), #a855f7, #3b82f6)' }}
+                                    >
+                                        {"offer.".slice(0, charCount - 35)}
+                                    </span>
+                                )}
+                                {charCount >= 35 && charCount < 41 && <Cursor />}
                             </span>
                         )}
-                        {charCount >= 35 && charCount < 41 && <Cursor />}
                     </h1>
 
                     {/* Subheadline */}
@@ -256,13 +259,13 @@ const Landing = () => {
                     </p>
 
                     {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 w-full max-w-md mx-auto sm:max-w-none">
                         <button
                             id="hero-get-started"
                             onClick={() => navigate('/register')}
-                            className="relative overflow-hidden group w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-[var(--color-accent)] to-purple-600 hover:opacity-90 transition-all duration-200 shadow-[0_8px_32px_rgba(255,45,120,0.4)] hover:shadow-[0_8px_40px_rgba(255,45,120,0.55)] active:scale-[0.98] cursor-pointer border-none"
+                            className="relative overflow-hidden group w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-[var(--color-accent)] to-purple-600 hover:opacity-90 transition-all duration-200 shadow-[0_8px_32px_rgba(255,45,120,0.4)] hover:shadow-[0_8px_40px_rgba(255,45,120,0.55)] active:scale-[0.98] cursor-pointer border-none flex items-center justify-center"
                         >
-                            <span className="relative z-10 flex items-center gap-2">
+                            <span className="relative z-10 flex items-center justify-center gap-2 w-full">
                                 Start Preparing Now
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
                             </span>
@@ -373,22 +376,21 @@ const Landing = () => {
                 </div>
 
                 <div className="relative z-10 max-w-3xl mx-auto text-center space-y-8">
-                    <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-                        Your next interview{' '}
-                        <br />
-                        <span className="bg-gradient-to-r from-[var(--color-accent)] to-purple-400 bg-clip-text text-transparent">
+                    <h2 className="text-2xl min-[410px]:text-3xl sm:text-5xl font-extrabold tracking-tight flex flex-col items-center gap-1 sm:gap-2">
+                        <span className="block whitespace-nowrap">Your next interview</span>
+                        <span className="block bg-gradient-to-r from-[var(--color-accent)] to-purple-400 bg-clip-text text-transparent whitespace-nowrap">
                             starts here.
                         </span>
                     </h2>
                     <p className="text-lg text-[var(--color-text-muted)] max-w-xl mx-auto leading-relaxed">
                         Join the smarter way to prepare for your next interview.                    </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mx-auto sm:max-w-none">
                         <button
                             id="cta-get-started"
                             onClick={() => navigate('/register')}
-                            className="relative overflow-hidden group w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-[var(--color-accent)] to-purple-600 hover:opacity-90 transition-all duration-200 shadow-[0_8px_32px_rgba(255,45,120,0.4)] hover:shadow-[0_8px_40px_rgba(255,45,120,0.55)] active:scale-[0.98] cursor-pointer border-none"
+                            className="relative overflow-hidden group w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-base text-white bg-gradient-to-r from-[var(--color-accent)] to-purple-600 hover:opacity-90 transition-all duration-200 shadow-[0_8px_32px_rgba(255,45,120,0.4)] hover:shadow-[0_8px_40px_rgba(255,45,120,0.55)] active:scale-[0.98] cursor-pointer border-none flex items-center justify-center"
                         >
-                            <span className="relative z-10 flex items-center gap-2">
+                            <span className="relative z-10 flex items-center justify-center gap-2 w-full">
                                 Create Your Account
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
                             </span>
@@ -396,7 +398,7 @@ const Landing = () => {
                         </button>
                         <button
                             onClick={() => navigate('/login')}
-                            className="w-full sm:w-auto px-8 py-4 rounded-2xl font-semibold text-base text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer bg-transparent border-none"
+                            className="w-full sm:w-auto px-8 py-4 rounded-2xl font-semibold text-base text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer bg-transparent border-none flex items-center justify-center"
                         >
                             Already have an account →
                         </button>

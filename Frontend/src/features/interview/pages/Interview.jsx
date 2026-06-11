@@ -160,160 +160,260 @@ const Interview = () => {
 
 
     return (
-        <div className='w-full min-h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] font-sans flex flex-col pt-20 pb-8 px-4 md:px-6 box-border relative'>
+        <div className='w-full min-h-screen bg-[var(--color-bg-page)] text-[var(--color-text-primary)] font-sans relative'>
             <Header />
-            <div className='flex flex-col lg:flex-row w-full max-w-[1280px] mx-auto mt-8 bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-2xl justify-between overflow-hidden'>
 
-                {/* ── Left Nav ── */}
-                <nav className='w-full lg:w-[220px] shrink-0 p-4 lg:py-7 lg:px-4 flex flex-col sm:flex-row lg:flex-col justify-between gap-3 lg:gap-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border-color)]'>
-                    <div className='flex flex-row lg:flex-col gap-1 overflow-x-auto flex-1 pb-2 sm:pb-0'>
-                        <p className='hidden lg:block text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] px-3 mb-2'>Sections</p>
-                        {NAV_ITEMS.map(item => (
-                            <button
-                                key={item.id}
-                                className={`flex items-center gap-2.5 shrink-0 lg:w-full py-2 px-3 lg:py-2.5 lg:px-3 bg-transparent border-none rounded-lg text-[var(--color-text-muted)] font-sans text-xs sm:text-sm cursor-pointer text-left transition-colors hover:bg-[var(--color-bg-panel)] hover:text-[var(--color-text-primary)] ${activeNav === item.id ? 'bg-[rgba(255,45,120,0.1)] text-[var(--color-accent)] hover:bg-[rgba(255,45,120,0.1)] hover:text-[var(--color-accent)] [&>span]:text-[var(--color-accent)]' : ''}`}
-                                onClick={() => setActiveNav(item.id)}
-                            >
-                                <span className='flex items-center shrink-0'>{item.icon}</span>
-                                {item.label}
-                            </button>
-                        ))}
-                    </div>
-                    <button
-                        onClick={() => { getResumePdf(interviewId) }}
-                        disabled={downloadLoading}
-                        className='flex items-center justify-center gap-2 w-full sm:w-auto lg:w-full py-2.5 px-4 bg-gradient-to-br from-[var(--color-accent)] to-[#cc2460] text-white text-xs sm:text-sm font-semibold border-none rounded-lg cursor-pointer hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0' >
-                        {downloadLoading ? (
-                            <>
-                                <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
-                                Downloading Resume...
-                            </>
-                        ) : (
-                            <>
-                                <svg height={"0.8rem"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z"></path></svg>
-                                Download Resume
-                            </>
-                        )}
-                    </button>
-                </nav>
+            {/* ── MOBILE LAYOUT (< 500px) ─────────────────────────────── */}
+            <div className='min-[500px]:hidden flex flex-col pt-20 pb-24 px-4 gap-4'>
 
-                <div className='w-px bg-[var(--color-border-color)] shrink-0' />
+                {/* Mobile Info Strip — Score + Skill Gaps */}
+                <div className='flex flex-col gap-3'>
 
-                {/* ── Center Content ── */}
-                <main className='flex-1 py-6 px-4 sm:py-7 sm:px-8 lg:overflow-y-auto lg:max-h-[calc(100vh-3rem)] pb-12 lg:pb-20 items-start'>
-                    {activeNav === 'technical' && (
-                        <section className='min-h-full'>
-                            <div className='flex items-center gap-3 mb-6 pb-4 border-b border-[var(--color-border-color)]'>
-                                <h2 className='text-lg font-bold text-[var(--color-text-primary)] m-0'>Technical Questions</h2>
-                                <span className='text-xs text-[var(--color-text-muted)] bg-[var(--color-bg-panel)] py-0.5 px-2.5 rounded-full border border-[var(--color-border-color)]'>{report.technicalQuestions.length} questions</span>
-                                <button
-                                    onClick={() => handleRegenerate('technical')}
-                                    disabled={isRegeneratingTechnical}
-                                    className='ml-auto flex items-center gap-2 text-[0.75rem] font-medium text-[var(--color-accent)] bg-[rgba(255,45,120,0.1)] hover:bg-[rgba(255,45,120,0.15)] border border-[rgba(255,45,120,0.2)] py-1.5 px-3 rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                                >
-                                    {isRegeneratingTechnical ? (
-                                        <>
-                                            <div className='w-3 h-3 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin'></div>
-                                            Generating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></svg>
-                                            Generate New Questions
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                            <div className='flex flex-col gap-3'>
-                                {report.technicalQuestions.map((q, i) => (
-                                    <QuestionCard key={i} item={q} index={i} />
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-                    {activeNav === 'behavioral' && (
-                        <section className='min-h-full'>
-                            <div className='flex items-center gap-3 mb-6 pb-4 border-b border-[var(--color-border-color)]'>
-                                <h2 className='text-lg font-bold text-[var(--color-text-primary)] m-0'>Behavioral Questions</h2>
-                                <span className='text-xs text-[var(--color-text-muted)] bg-[var(--color-bg-panel)] py-0.5 px-2.5 rounded-full border border-[var(--color-border-color)]'>{report.behavioralQuestions.length} questions</span>
-                                <button
-                                    onClick={() => handleRegenerate('behavioral')}
-                                    disabled={isRegeneratingBehavioral}
-                                    className='ml-auto flex items-center gap-2 text-[0.75rem] font-medium text-[var(--color-accent)] bg-[rgba(255,45,120,0.1)] hover:bg-[rgba(255,45,120,0.15)] border border-[rgba(255,45,120,0.2)] py-1.5 px-3 rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                                >
-                                    {isRegeneratingBehavioral ? (
-                                        <>
-                                            <div className='w-3 h-3 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin'></div>
-                                            Generating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></svg>
-                                            Generate New Questions
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                            <div className='flex flex-col gap-3'>
-                                {report.behavioralQuestions.map((q, i) => (
-                                    <QuestionCard key={i} item={q} index={i} />
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-                    {activeNav === 'roadmap' && (
-                        <section className='min-h-full'>
-                            <div className='flex items-baseline gap-3 mb-6 pb-4 border-b border-[var(--color-border-color)]'>
-                                <h2 className='text-lg font-bold text-[var(--color-text-primary)] m-0'>Preparation Road Map</h2>
-                                <span className='text-xs text-[var(--color-text-muted)] bg-[var(--color-bg-panel)] py-0.5 px-2.5 rounded-full border border-[var(--color-border-color)]'>
-                                    {report.preparationPlan[0] && typeof report.preparationPlan[0].day !== 'undefined'
-                                        ? `${report.preparationPlan.length}-day plan`
-                                        : `${report.preparationPlan.length} phases`}
-                                </span>
-                            </div>
-                            <div className='flex flex-col relative before:content-[""] before:absolute before:left-[28px] before:top-0 before:bottom-0 before:w-[2px] before:bg-gradient-to-b before:from-[var(--color-accent)] before:to-[rgba(255,45,120,0.1)] before:rounded-sm'>
-                                {report.preparationPlan.map((phase, idx) => (
-                                    <RoadMapPhase key={phase.phaseNumber || phase.day || idx} phase={phase} />
-                                ))}
-                            </div>
-                        </section>
-                    )}
-                </main>
-
-                <div className='hidden lg:block w-px bg-[var(--color-border-color)] shrink-0' />
-
-                {/* ── Right Sidebar ── */}
-                <aside className='w-full lg:w-[240px] shrink-0 p-5 lg:py-7 lg:px-5 flex flex-col sm:flex-row lg:flex-col justify-around lg:justify-start gap-6 lg:gap-5 border-t lg:border-t-0 lg:border-l border-[var(--color-border-color)]'>
-
-                    {/* Match Score */}
-                    <div className='flex flex-col items-center gap-2.5 flex-1 lg:flex-none max-w-[200px] lg:max-w-none mb-5'>
-                        <p className='text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] m-0 self-start'>Match Score</p>
-                        <div className={`w-[90px] h-[90px] rounded-full flex items-center justify-center border-4 ${scoreColor}`}>
-                            <span className='text-2xl font-extrabold text-[var(--color-text-primary)] leading-none'>
-                                {report.matchScore}
-                                <span className='text-xs text-[var(--color-text-muted)] ml-0.5 font-semibold'>%</span>
+                    {/* Score Row */}
+                    <div className='flex items-center gap-3 p-3.5 bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-xl'>
+                        <div className={`w-14 h-14 rounded-full flex items-center justify-center border-4 shrink-0 ${scoreColor}`}>
+                            <span className='text-lg font-extrabold text-[var(--color-text-primary)] leading-none'>
+                                {report.matchScore}<span className='text-[0.6rem] font-semibold text-[var(--color-text-muted)]'>%</span>
                             </span>
                         </div>
-                        <p className={`m-0 text-[0.75rem] ${scoreTextColor} text-center`}>{scoreText}</p>
+                        <div className='flex-1 min-w-0'>
+                            <p className='text-[0.65rem] font-bold uppercase tracking-widest text-[var(--color-text-muted)] m-0'>Match Score</p>
+                            <p className={`text-sm font-semibold m-0 mt-0.5 ${scoreTextColor}`}>{scoreText}</p>
+                            <p className='text-xs text-[var(--color-text-muted)] m-0 truncate'>{report.title || 'Interview Plan'}</p>
+                        </div>
                     </div>
 
-                    <div className='hidden lg:block h-px bg-[var(--color-border-color)]' />
-
                     {/* Skill Gaps */}
-                    <div className='flex flex-col gap-3 flex-1 lg:flex-none'>
-                        <p className='text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] m-0'>Skill Gaps</p>
-                        <div className='flex flex-wrap gap-2'>
+                    <div className='p-3.5 bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-xl flex flex-col gap-2'>
+                        <p className='text-[0.65rem] font-bold uppercase tracking-widest text-[var(--color-text-muted)] m-0'>Skill Gaps</p>
+                        <div className='flex flex-wrap gap-1.5'>
                             {report.skillGaps.map((gap, i) => (
-                                <span key={i} className={`text-[0.775rem] font-medium py-1 px-2.5 rounded-md border cursor-default ${gap.severity === 'high' ? 'text-[var(--color-severity-high)] bg-[rgba(255,77,77,0.1)] border-[rgba(255,77,77,0.25)]' : gap.severity === 'medium' ? 'text-[var(--color-severity-medium)] bg-[rgba(245,166,35,0.1)] border-[rgba(245,166,35,0.25)]' : 'text-[var(--color-severity-low)] bg-[rgba(63,185,80,0.1)] border-[rgba(63,185,80,0.25)]'}`}>
+                                <span key={i} className={`text-[0.72rem] font-medium py-0.5 px-2 rounded border ${gap.severity === 'high' ? 'text-[var(--color-severity-high)] bg-[rgba(255,77,77,0.1)] border-[rgba(255,77,77,0.25)]' : gap.severity === 'medium' ? 'text-[var(--color-severity-medium)] bg-[rgba(245,166,35,0.1)] border-[rgba(245,166,35,0.25)]' : 'text-[var(--color-severity-low)] bg-[rgba(63,185,80,0.1)] border-[rgba(63,185,80,0.25)]'}`}>
                                     {gap.skill}
                                 </span>
                             ))}
                         </div>
                     </div>
 
-                </aside>
+                    {/* Download Resume */}
+                    <button
+                        onClick={() => getResumePdf(interviewId)}
+                        disabled={downloadLoading}
+                        className='w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[var(--color-accent)] to-[#cc2460] text-white text-sm font-semibold border-none rounded-xl cursor-pointer hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_16px_rgba(255,45,120,0.3)]'
+                    >
+                        {downloadLoading ? (
+                            <><div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />Downloading...</>
+                        ) : (
+                            <><svg xmlns="http://www.w3.org/2000/svg" height="0.85rem" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z" /></svg>Download Resume</>
+                        )}
+                    </button>
+                </div>
+
+                {/* Mobile Section Content */}
+                <div className='bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-xl overflow-hidden'>
+
+                    {/* Section Header */}
+                    <div className='px-4 pt-4 pb-3 border-b border-[var(--color-border-color)] flex flex-col gap-2'>
+                        <div className='flex items-center gap-2'>
+                            <h2 className='text-base font-bold text-[var(--color-text-primary)] m-0 flex-1'>
+                                {activeNav === 'technical' && 'Technical Questions'}
+                                {activeNav === 'behavioral' && 'Behavioral Questions'}
+                                {activeNav === 'roadmap' && 'Preparation Road Map'}
+                            </h2>
+                            <span className='text-[0.65rem] text-[var(--color-text-muted)] bg-[var(--color-bg-panel)] py-0.5 px-2 rounded-full border border-[var(--color-border-color)] shrink-0'>
+                                {activeNav === 'technical' && `${report.technicalQuestions.length} questions`}
+                                {activeNav === 'behavioral' && `${report.behavioralQuestions.length} questions`}
+                                {activeNav === 'roadmap' && (report.preparationPlan[0] && typeof report.preparationPlan[0].day !== 'undefined' ? `${report.preparationPlan.length}-day plan` : `${report.preparationPlan.length} phases`)}
+                            </span>
+                        </div>
+                        {(activeNav === 'technical' || activeNav === 'behavioral') && (
+                            <button
+                                onClick={() => handleRegenerate(activeNav)}
+                                disabled={activeNav === 'technical' ? isRegeneratingTechnical : isRegeneratingBehavioral}
+                                className='self-start flex items-center gap-1.5 text-[0.72rem] font-medium text-[var(--color-accent)] bg-[rgba(255,45,120,0.1)] hover:bg-[rgba(255,45,120,0.15)] border border-[rgba(255,45,120,0.2)] py-1.5 px-3 rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                            >
+                                {(activeNav === 'technical' ? isRegeneratingTechnical : isRegeneratingBehavioral) ? (
+                                    <>
+                                        <div className='w-3 h-3 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin' />
+                                        Generating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></svg>
+                                        Generate New Questions
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Section Body */}
+                    <div className='p-4 flex flex-col gap-3'>
+                        {activeNav === 'technical' && report.technicalQuestions.map((q, i) => (
+                            <QuestionCard key={i} item={q} index={i} />
+                        ))}
+                        {activeNav === 'behavioral' && report.behavioralQuestions.map((q, i) => (
+                            <QuestionCard key={i} item={q} index={i} />
+                        ))}
+                        {activeNav === 'roadmap' && (
+                            <div className='flex flex-col relative before:content-[""] before:absolute before:left-[28px] before:top-0 before:bottom-0 before:w-[2px] before:bg-gradient-to-b before:from-[var(--color-accent)] before:to-[rgba(255,45,120,0.1)] before:rounded-sm'>
+                                {report.preparationPlan.map((phase, idx) => (
+                                    <RoadMapPhase key={phase.phaseNumber || phase.day || idx} phase={phase} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Sticky Bottom Tab Bar (mobile only) */}
+            <nav className='min-[500px]:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--color-bg-card)] border-t border-[var(--color-border-color)] flex'>
+                {NAV_ITEMS.map(item => (
+                    <button
+                        key={item.id}
+                        onClick={() => setActiveNav(item.id)}
+                        className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 border-none cursor-pointer transition-colors text-[0.6rem] font-semibold tracking-wide uppercase
+                            ${activeNav === item.id
+                                ? 'text-[var(--color-accent)] bg-[rgba(255,45,120,0.08)]'
+                                : 'text-[var(--color-text-muted)] bg-transparent hover:text-[var(--color-text-primary)]'
+                            }`}
+                    >
+                        <span className='flex items-center'>{item.icon}</span>
+                        {item.label.replace(' Questions', '').replace('Road ', '')}
+                    </button>
+                ))}
+            </nav>
+
+            {/* ── DESKTOP LAYOUT (≥ 500px) ────────────────────────────── */}
+            <div className='max-[500px]:hidden flex flex-col pt-20 pb-8 px-4 md:px-6 box-border'>
+                <div className='flex flex-col lg:flex-row w-full max-w-[1280px] mx-auto mt-8 bg-[var(--color-bg-card)] border border-[var(--color-border-color)] rounded-2xl justify-between overflow-hidden'>
+
+                    {/* ── Left Nav ── */}
+                    <nav className='w-full lg:w-[220px] shrink-0 p-4 lg:py-7 lg:px-4 flex flex-col sm:flex-row lg:flex-col justify-between gap-3 lg:gap-1 border-b lg:border-b-0 lg:border-r border-[var(--color-border-color)]'>
+                        <div className='flex flex-row lg:flex-col gap-1 overflow-x-auto flex-1 pb-2 sm:pb-0'>
+                            <p className='hidden lg:block text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] px-3 mb-2'>Sections</p>
+                            {NAV_ITEMS.map(item => (
+                                <button
+                                    key={item.id}
+                                    className={`flex items-center gap-2.5 shrink-0 lg:w-full py-2 px-3 lg:py-2.5 lg:px-3 bg-transparent border-none rounded-lg text-[var(--color-text-muted)] font-sans text-xs sm:text-sm cursor-pointer text-left transition-colors hover:bg-[var(--color-bg-panel)] hover:text-[var(--color-text-primary)] ${activeNav === item.id ? 'bg-[rgba(255,45,120,0.1)] text-[var(--color-accent)] hover:bg-[rgba(255,45,120,0.1)] hover:text-[var(--color-accent)]' : ''}`}
+                                    onClick={() => setActiveNav(item.id)}
+                                >
+                                    <span className='flex items-center shrink-0'>{item.icon}</span>
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => getResumePdf(interviewId)}
+                            disabled={downloadLoading}
+                            className='flex items-center justify-center gap-2 w-full sm:w-auto lg:w-full py-2.5 px-4 bg-gradient-to-br from-[var(--color-accent)] to-[#cc2460] text-white text-xs sm:text-sm font-semibold border-none rounded-lg cursor-pointer hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0'>
+                            {downloadLoading ? (
+                                <>
+                                    <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                                    Downloading Resume...
+                                </>
+                            ) : (
+                                <>
+                                    <svg height={"0.8rem"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z" /></svg>
+                                    Download Resume
+                                </>
+                            )}
+                        </button>
+                    </nav>
+
+                    <div className='w-px bg-[var(--color-border-color)] shrink-0' />
+
+                    {/* ── Center Content ── */}
+                    <main className='flex-1 py-6 px-4 sm:py-7 sm:px-8 lg:overflow-y-auto lg:max-h-[calc(100vh-3rem)] pb-12 lg:pb-20 items-start'>
+                        {activeNav === 'technical' && (
+                            <section className='min-h-full'>
+                                <div className='flex items-center gap-3 mb-6 pb-4 border-b border-[var(--color-border-color)]'>
+                                    <h2 className='text-lg font-bold text-[var(--color-text-primary)] m-0'>Technical Questions</h2>
+                                    <span className='text-xs text-[var(--color-text-muted)] bg-[var(--color-bg-panel)] py-0.5 px-2.5 rounded-full border border-[var(--color-border-color)]'>{report.technicalQuestions.length} questions</span>
+                                    <button
+                                        onClick={() => handleRegenerate('technical')}
+                                        disabled={isRegeneratingTechnical}
+                                        className='ml-auto flex items-center gap-2 text-[0.75rem] font-medium text-[var(--color-accent)] bg-[rgba(255,45,120,0.1)] hover:bg-[rgba(255,45,120,0.15)] border border-[rgba(255,45,120,0.2)] py-1.5 px-3 rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                                    >
+                                        {isRegeneratingTechnical ? (
+                                            <><div className='w-3 h-3 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin' />Generating...</>
+                                        ) : (
+                                            <><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></svg>Generate New Questions</>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className='flex flex-col gap-3'>
+                                    {report.technicalQuestions.map((q, i) => <QuestionCard key={i} item={q} index={i} />)}
+                                </div>
+                            </section>
+                        )}
+                        {activeNav === 'behavioral' && (
+                            <section className='min-h-full'>
+                                <div className='flex items-center gap-3 mb-6 pb-4 border-b border-[var(--color-border-color)]'>
+                                    <h2 className='text-lg font-bold text-[var(--color-text-primary)] m-0'>Behavioral Questions</h2>
+                                    <span className='text-xs text-[var(--color-text-muted)] bg-[var(--color-bg-panel)] py-0.5 px-2.5 rounded-full border border-[var(--color-border-color)]'>{report.behavioralQuestions.length} questions</span>
+                                    <button
+                                        onClick={() => handleRegenerate('behavioral')}
+                                        disabled={isRegeneratingBehavioral}
+                                        className='ml-auto flex items-center gap-2 text-[0.75rem] font-medium text-[var(--color-accent)] bg-[rgba(255,45,120,0.1)] hover:bg-[rgba(255,45,120,0.15)] border border-[rgba(255,45,120,0.2)] py-1.5 px-3 rounded-lg cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                                    >
+                                        {isRegeneratingBehavioral ? (
+                                            <><div className='w-3 h-3 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin' />Generating...</>
+                                        ) : (
+                                            <><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></svg>Generate New Questions</>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className='flex flex-col gap-3'>
+                                    {report.behavioralQuestions.map((q, i) => <QuestionCard key={i} item={q} index={i} />)}
+                                </div>
+                            </section>
+                        )}
+                        {activeNav === 'roadmap' && (
+                            <section className='min-h-full'>
+                                <div className='flex items-baseline gap-3 mb-6 pb-4 border-b border-[var(--color-border-color)]'>
+                                    <h2 className='text-lg font-bold text-[var(--color-text-primary)] m-0'>Preparation Road Map</h2>
+                                    <span className='text-xs text-[var(--color-text-muted)] bg-[var(--color-bg-panel)] py-0.5 px-2.5 rounded-full border border-[var(--color-border-color)]'>
+                                        {report.preparationPlan[0] && typeof report.preparationPlan[0].day !== 'undefined'
+                                            ? `${report.preparationPlan.length}-day plan`
+                                            : `${report.preparationPlan.length} phases`}
+                                    </span>
+                                </div>
+                                <div className='flex flex-col relative before:content-[""] before:absolute before:left-[28px] before:top-0 before:bottom-0 before:w-[2px] before:bg-gradient-to-b before:from-[var(--color-accent)] before:to-[rgba(255,45,120,0.1)] before:rounded-sm'>
+                                    {report.preparationPlan.map((phase, idx) => (
+                                        <RoadMapPhase key={phase.phaseNumber || phase.day || idx} phase={phase} />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+                    </main>
+
+                    <div className='hidden lg:block w-px bg-[var(--color-border-color)] shrink-0' />
+
+                    {/* ── Right Sidebar ── */}
+                    <aside className='w-full lg:w-[240px] shrink-0 p-5 lg:py-7 lg:px-5 flex flex-col sm:flex-row lg:flex-col justify-around lg:justify-start gap-6 lg:gap-5 border-t lg:border-t-0 lg:border-l border-[var(--color-border-color)]'>
+                        <div className='flex flex-col items-center gap-2.5 flex-1 lg:flex-none max-w-[200px] lg:max-w-none mb-5'>
+                            <p className='text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] m-0 self-start'>Match Score</p>
+                            <div className={`w-[90px] h-[90px] rounded-full flex items-center justify-center border-4 ${scoreColor}`}>
+                                <span className='text-2xl font-extrabold text-[var(--color-text-primary)] leading-none'>
+                                    {report.matchScore}<span className='text-xs text-[var(--color-text-muted)] ml-0.5 font-semibold'>%</span>
+                                </span>
+                            </div>
+                            <p className={`m-0 text-[0.75rem] ${scoreTextColor} text-center`}>{scoreText}</p>
+                        </div>
+                        <div className='hidden lg:block h-px bg-[var(--color-border-color)]' />
+                        <div className='flex flex-col gap-3 flex-1 lg:flex-none'>
+                            <p className='text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-text-muted)] m-0'>Skill Gaps</p>
+                            <div className='flex flex-wrap gap-2'>
+                                {report.skillGaps.map((gap, i) => (
+                                    <span key={i} className={`text-[0.775rem] font-medium py-1 px-2.5 rounded-md border cursor-default ${gap.severity === 'high' ? 'text-[var(--color-severity-high)] bg-[rgba(255,77,77,0.1)] border-[rgba(255,77,77,0.25)]' : gap.severity === 'medium' ? 'text-[var(--color-severity-medium)] bg-[rgba(245,166,35,0.1)] border-[rgba(245,166,35,0.25)]' : 'text-[var(--color-severity-low)] bg-[rgba(63,185,80,0.1)] border-[rgba(63,185,80,0.25)]'}`}>
+                                        {gap.skill}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </aside>
+                </div>
             </div>
         </div>
     )
