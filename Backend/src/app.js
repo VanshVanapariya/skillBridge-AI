@@ -47,7 +47,7 @@ const interviewRouter = require("./routs/interview.routs")
 
 /* using all the routes here with rate limiting */
 app.use("/api/auth", authLimiter, authRouter)
-app.use("/api/interview", aiLimiter, interviewRouter)
+app.use("/api/interview", interviewRouter)
 
 // Centralized error handler
 app.use((err, req, res, next) => {

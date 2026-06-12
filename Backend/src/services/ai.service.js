@@ -12,12 +12,12 @@ const interviewReportSchema = z.object({
     technicalQuestions: z.array(z.object({
         question: z.string().describe("The technical question can be asked in the interview"),
         intention: z.string().describe("The intention of interviewer behind asking this question"),
-        answer: z.string().describe("A comprehensive response containing both the approach (what points to cover) AND an exact, high-quality sample answer that the candidate could use.")
+        answer: z.string().describe("MUST follow this exact format: 'Approach:\n<what key points to cover and how to structure the answer>\n\nSample Answer:\n<a full, high-quality, first-person sample answer the candidate could say verbatim>'")
     })).describe("Technical questions that can be asked in the interview along with their intention and how to answer them"),
     behavioralQuestions: z.array(z.object({
-        question: z.string().describe("The technical question can be asked in the interview"),
+        question: z.string().describe("The behavioral question can be asked in the interview"),
         intention: z.string().describe("The intention of interviewer behind asking this question"),
-        answer: z.string().describe("A comprehensive response containing both the approach (what points to cover) AND an exact, high-quality sample answer that the candidate could use.")
+        answer: z.string().describe("MUST follow this exact format: 'Approach:\n<what key points to cover and how to structure the answer>\n\nSample Answer:\n<a full, high-quality, first-person sample answer the candidate could say verbatim>'")
     })).describe("Behavioral questions that can be asked in the interview along with their intention and how to answer them"),
     skillGaps: z.array(z.object({
         skill: z.string().describe("The skill which the candidate is lacking"),
@@ -37,7 +37,7 @@ const newQuestionsSchema = z.object({
     questions: z.array(z.object({
         question: z.string().describe("The technical or behavioral question can be asked in the interview"),
         intention: z.string().describe("The intention of interviewer behind asking this question"),
-        answer: z.string().describe("A comprehensive response containing both the approach (what points to cover) AND an exact, high-quality sample answer that the candidate could use.")
+        answer: z.string().describe("MUST follow this exact format: 'Approach:\n<what key points to cover and how to structure the answer>\n\nSample Answer:\n<a full, high-quality, first-person sample answer the candidate could say verbatim>'")
     })).describe("List of 10 completely new questions")
 })
 
@@ -51,12 +51,19 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
                         1. You MUST generate at least 10 technicalQuestions.
                         2. You MUST generate at least 10 behavioralQuestions.
                         3. You MUST thoroughly compare the candidate's profile against the job description and identify ALL skill gaps. Do not limit the number; strictly list every single skill, tool, or qualification that is required for the job but missing from the candidate's profile. List only those skillgaps which are strictly required for that job. 
-                        4. You MUST create a preparationPlan structured into sequential milestone phases (e.g. Phase 1, Phase 2, etc.) rather than rigid single days. Focus on creating 3 to 5 logical phases, each with a realistic durationEstimate based on the depth of the topics (e.g., '3-4 days', '1 week') and clear focuses/tasks tailored to the candidate's skill gaps.
+                        4. You MUST create a preparationPlan structured into sequential milestone phases (e.g. Phase 1, Phase 2, etc.) rather than rigid single days. Focus on creating 3 to 5 logical phases, each with a realistic durationEstimate based on the depth of the topics (e.g., '3-4 days', '1 week', 3 weeks) and clear focuses/tasks tailored to the candidate's skill gaps. Give duration of phase that actually a normal human need to complete that perticular task.
+                        5. For EVERY question's answer field, you MUST use this exact two-section format:
+                           Approach:
+                           <Explain the key points and strategy to structure the answer>
+
+                           Sample Answer:
+                           <Write a full, first-person, high-quality answer the candidate could say word-for-word>
                         Do NOT leave any of these arrays empty in your response!
     `
     const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        // model: "gemini-3-flash-preview",
         // model: "gemini-2.5-pro",
+        model: "gemini-3.1-flash-lite",
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -85,10 +92,10 @@ async function getBrowserInstance() {
 async function generatePdfFromHtml(htmlContent) {
     const browser = await getBrowserInstance();
     const page = await browser.newPage();
-    
+
     // Disable JS execution to prevent script injection (SSRF/XSS)
     await page.setJavaScriptEnabled(false);
-    
+
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' })
 
     const pdfBuffer = await page.pdf({

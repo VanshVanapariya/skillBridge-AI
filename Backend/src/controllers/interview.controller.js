@@ -10,18 +10,28 @@ const interviewReportModel = require("../models/interviewReport.model")
 
 async function generateInterviewReportController(req, res) {
     try {
-        const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
         const { selfDescription, jobDescription, title } = req.body
 
+        // Resume is optional — user may provide only a self-description
+        let resumeText = ""
+        if (req.file?.buffer) {
+            const resumeContent = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
+            resumeText = resumeContent.text
+        }
+
+        if (!resumeText && !selfDescription?.trim()) {
+            return res.status(400).json({ message: "Please provide either a resume file or a self-description." })
+        }
+
         const interviewReportByAi = await generateInterviewReport({
-            resume: resumeContent.text,
+            resume: resumeText,
             selfDescription,
             jobDescription
         })
 
         const interviewReport = await interviewReportModel.create({
             user: req.user.id,
-            resume: resumeContent.text,
+            resume: resumeText,
             selfDescription,
             jobDescription,
             title,
@@ -34,7 +44,7 @@ async function generateInterviewReportController(req, res) {
         })
     } catch (error) {
         logger.error("Error generating interview report: %O", error)
-        res.status(500).json({ message: "Failed to generate interview report. The AI service might be overloaded (Rate Limit). Please try again." })
+        res.status(500).json({ message: `Failed to generate interview report. Error: ${error?.message || error}` })
     }
 }
 
@@ -76,17 +86,17 @@ async function getAllInterviewReportsController(req, res) {
  */
 async function generateResumePdfController(req, res) {
     try {
-        const {interviewId} = req.params
+        const { interviewId } = req.params
 
         const interviewReport = await interviewReportModel.findById(interviewId)
 
-        if(!interviewReport){
-             return res.status(404).json({
+        if (!interviewReport) {
+            return res.status(404).json({
                 message: "Interview report not found."
             })
         }
 
-        const {resume, selfDescription, jobDescription} = interviewReport
+        const { resume, selfDescription, jobDescription } = interviewReport
 
         const pdfBuffer = await generateResumePdf({ resume, jobDescription, selfDescription })
 
