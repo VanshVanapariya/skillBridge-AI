@@ -1,6 +1,6 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { AuthContext } from "../auth.context";
-import { register, login, logout, getMe } from "../services/auth.api";
+import { register, login, logout } from "../services/auth.api";
 import { useNavigate } from "react-router-dom";
 
 export const useAuth = () => {
@@ -54,23 +54,5 @@ export const useAuth = () => {
         }
     }
 
-    useEffect(() => {
-        const getAndSetUser = async () => {
-            try {
-                const data = await getMe()
-                if (data) {
-                    setUser(data.user)
-                } else {
-                    setUser(null)
-                }
-            }
-            catch (err) { }
-            finally {
-                setLoading(false)
-            }
-        }
-        getAndSetUser()
-    }, [])
-
     return { user, loading, handleRegister, handleLogin, handleLogout }
-}
+}

@@ -40,13 +40,17 @@ const InteractiveLoader = () => {
 
 const Home = () => {
 
-    const { loading, generateReport, reports, deleteReport } = useInterview()
-    const [jobDescription, setJobDescription] = useState("")
-    const [selfDescription, setSelfDescription] = useState("")
+    const { loading, generateReport, getReports, reports, deleteReport } = useInterview()
+    const [jobDescription, setJobDescription] = useState(() => localStorage.getItem('sb_jobDescription') || "")
+    const [selfDescription, setSelfDescription] = useState(() => localStorage.getItem('sb_selfDescription') || "")
     const [fileName, setFileName] = useState("")
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
+
+    useEffect(() => {
+        getReports()
+    }, [])
 
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -54,11 +58,24 @@ const Home = () => {
         }
     }
 
+    const handleJobDescriptionChange = (e) => {
+        setJobDescription(e.target.value)
+        localStorage.setItem('sb_jobDescription', e.target.value)
+    }
+
+    const handleSelfDescriptionChange = (e) => {
+        setSelfDescription(e.target.value)
+        localStorage.setItem('sb_selfDescription', e.target.value)
+    }
+
     const handleGenerateReport = async () => {
         try {
             const resumeFile = resumeInputRef.current?.files[0]
             const data = await generateReport({ jobDescription, selfDescription, resumeFile })
             if (data && data._id) {
+                // Clear persisted form data after successful generation
+                localStorage.removeItem('sb_jobDescription')
+                localStorage.removeItem('sb_selfDescription')
                 navigate(`/interview/${data._id}`)
             }
         } catch (error) {
@@ -106,7 +123,7 @@ const Home = () => {
                     {/* Textarea */}
                     <div className='p-4 flex flex-col gap-1.5'>
                         <textarea
-                            onChange={(e) => { setJobDescription(e.target.value) }}
+                            onChange={handleJobDescriptionChange}
                             value={jobDescription}
                             className='w-full h-36 bg-[var(--color-bg-input)] border border-[var(--color-border-color)] rounded-xl py-3 px-3.5 text-[var(--color-text-primary)] text-sm resize-none outline-none focus:border-[var(--color-accent)] transition-colors leading-relaxed placeholder-[var(--color-text-muted)]'
                             placeholder={`Paste the full job description here...`}
@@ -170,7 +187,8 @@ const Home = () => {
                         <div className='flex flex-col gap-1.5'>
                             <label className='text-xs font-semibold text-[var(--color-text-primary)] uppercase tracking-wider' htmlFor='selfDesc-mobile'>Quick Self-Description</label>
                             <textarea
-                                onChange={(e) => { setSelfDescription(e.target.value) }}
+                                    onChange={handleSelfDescriptionChange}
+                                    value={selfDescription}
                                 id='selfDesc-mobile'
                                 name='selfDescription'
                                 className='h-20 w-full bg-[var(--color-bg-input)] border border-[var(--color-border-color)] rounded-xl py-3 px-3.5 text-[var(--color-text-primary)] text-sm resize-none outline-none focus:border-[var(--color-accent)] transition-colors leading-relaxed placeholder-[var(--color-text-muted)]'
@@ -264,7 +282,7 @@ const Home = () => {
                             </div>
                             <div className='flex-1 flex flex-col gap-1.5 min-h-[300px] md:min-h-none'>
                                 <textarea
-                                    onChange={(e) => { setJobDescription(e.target.value) }}
+                                    onChange={handleJobDescriptionChange}
                                     value={jobDescription}
                                     className='flex-1 w-full bg-[var(--color-bg-input)] border border-[var(--color-border-color)] rounded-lg py-3 px-4 text-[var(--color-text-primary)] text-sm resize-none outline-none focus:border-[var(--color-accent)] transition-colors leading-relaxed placeholder-[var(--color-text-muted)]'
                                     placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
@@ -323,7 +341,8 @@ const Home = () => {
                             <div className='flex flex-col gap-2'>
                                 <label className='flex items-center gap-2 text-sm font-medium text-[var(--color-text-primary)] mb-1' htmlFor='selfDescription'>Quick Self-Description</label>
                                 <textarea
-                                    onChange={(e) => { setSelfDescription(e.target.value) }}
+                                    onChange={handleSelfDescriptionChange}
+                                    value={selfDescription}
                                     id='selfDescription'
                                     name='selfDescription'
                                     className='flex-none h-24 w-full bg-[var(--color-bg-input)] border border-[var(--color-border-color)] rounded-lg py-3 px-4 text-[var(--color-text-primary)] text-sm resize-none outline-none focus:border-[var(--color-accent)] transition-colors leading-relaxed placeholder-[var(--color-text-muted)]'
