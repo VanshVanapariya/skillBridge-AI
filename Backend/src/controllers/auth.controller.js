@@ -20,6 +20,23 @@ async function registerUserController(req, res) {
         })
     }
 
+    // Server-side password strength validation
+    if (password.length < 8) {
+        return res.status(400).json({ message: "Password must be at least 8 characters long." })
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+        return res.status(400).json({ message: "Password must contain at least one lowercase letter." })
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+        return res.status(400).json({ message: "Password must contain at least one uppercase letter." })
+    }
+    if (!/(?=.*[0-9])/.test(password)) {
+        return res.status(400).json({ message: "Password must contain at least one number." })
+    }
+    if (!/(?=.*[!@#$%^&*])/.test(password)) {
+        return res.status(400).json({ message: "Password must contain at least one special character (!@#$%^&*)." })
+    }
+
     const isUserAlreadyExists = await userModel.findOne({
         $or: [{ username }, { email }]
     })

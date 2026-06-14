@@ -1,3 +1,4 @@
+const mongoose = require("mongoose")
 const pdfParse = require("pdf-parse")
 const { generateInterviewReport, generateResumePdf, generateNewQuestions } = require("../services/ai.service")
 const logger = require("../utils/logger")
@@ -21,6 +22,10 @@ async function generateInterviewReportController(req, res) {
 
         if (!resumeText && !selfDescription?.trim()) {
             return res.status(400).json({ message: "Please provide either a resume file or a self-description." })
+        }
+
+        if (!jobDescription?.trim()) {
+            return res.status(400).json({ message: "Job description is required." })
         }
 
         const interviewReportByAi = await generateInterviewReport({
@@ -52,33 +57,45 @@ async function generateInterviewReportController(req, res) {
  * @description Controller to get interview report by interviewId.
  */
 async function getInterviewReportByIdController(req, res) {
+    try {
+        const { interviewId } = req.params
 
-    const { interviewId } = req.params
+        if (!mongoose.Types.ObjectId.isValid(interviewId)) {
+            return res.status(400).json({ message: "Invalid report ID." })
+        }
 
-    const interviewReport = await interviewReportModel.findOne({ _id: interviewId, user: req.user.id })
+        const interviewReport = await interviewReportModel.findOne({ _id: interviewId, user: req.user.id })
 
-    if (!interviewReport) {
-        return res.status(404).json({
-            message: "Interview report not found."
+        if (!interviewReport) {
+            return res.status(404).json({
+                message: "Interview report not found."
+            })
+        }
+
+        res.status(200).json({
+            message: "Interview report fetched successfully.",
+            interviewReport
         })
+    } catch (error) {
+        logger.error("Error fetching interview report: %O", error)
+        res.status(500).json({ message: "Failed to fetch interview report." })
     }
-
-    res.status(200).json({
-        message: "Interview report fetched successfully.",
-        interviewReport
-    })
 }
 
 /** 
  * @description Controller to get all interview reports of logged in user.
  */
 async function getAllInterviewReportsController(req, res) {
-    const interviewReports = await interviewReportModel.find({ user: req.user.id }).sort({ createdAt: -1 }).select("-resume -selfDescription -jobDescription -__v -technicalQuestions -behavioralQuestions -skillGaps -preparationPlan")
-
-    res.status(200).json({
-        message: "Interview reports fetched successfully.",
-        interviewReports
-    })
+    try {
+        const interviewReports = await interviewReportModel.find({ user: req.user.id }).sort({ createdAt: -1 }).select("-resume -selfDescription -jobDescription -__v -technicalQuestions -behavioralQuestions -skillGaps -preparationPlan")
+        res.status(200).json({
+            message: "Interview reports fetched successfully.",
+            interviewReports
+        })
+    } catch (error) {
+        logger.error("Error fetching all interview reports: %O", error)
+        res.status(500).json({ message: "Failed to fetch interview reports." })
+    }
 }
 
 /**
@@ -88,7 +105,7 @@ async function generateResumePdfController(req, res) {
     try {
         const { interviewId } = req.params
 
-        const interviewReport = await interviewReportModel.findById(interviewId)
+        const interviewReport = await interviewReportModel.findOne({ _id: interviewId, user: req.user.id })
 
         if (!interviewReport) {
             return res.status(404).json({
@@ -109,7 +126,7 @@ async function generateResumePdfController(req, res) {
     } catch (error) {
         logger.error("Error generating resume PDF: %O", error)
         res.status(500).json({
-            message: "Failed to generate resume PDF. The AI service limit might be exceeded. Please try again later."
+            message: `Failed to generate resume PDF. Error: ${error?.message || error}`
         })
     }
 }
@@ -118,19 +135,28 @@ async function generateResumePdfController(req, res) {
  * @description Controller to delete an interview report by interviewId.
  */
 async function deleteInterviewReportController(req, res) {
-    const { interviewId } = req.params
+    try {
+        const { interviewId } = req.params
 
-    const interviewReport = await interviewReportModel.findOneAndDelete({ _id: interviewId, user: req.user.id })
+        if (!mongoose.Types.ObjectId.isValid(interviewId)) {
+            return res.status(400).json({ message: "Invalid report ID." })
+        }
 
-    if (!interviewReport) {
-        return res.status(404).json({
-            message: "Interview report not found."
+        const interviewReport = await interviewReportModel.findOneAndDelete({ _id: interviewId, user: req.user.id })
+
+        if (!interviewReport) {
+            return res.status(404).json({
+                message: "Interview report not found."
+            })
+        }
+
+        res.status(200).json({
+            message: "Interview report deleted successfully."
         })
+    } catch (error) {
+        logger.error("Error deleting interview report: %O", error)
+        res.status(500).json({ message: "Failed to delete interview report." })
     }
-
-    res.status(200).json({
-        message: "Interview report deleted successfully."
-    })
 }
 
 /**
@@ -139,7 +165,11 @@ async function deleteInterviewReportController(req, res) {
 async function regenerateQuestionsController(req, res) {
     try {
         const { interviewId } = req.params
-        const { type } = req.body // "technical" or "behavioral"
+        const { type } = req.body
+
+        if (!mongoose.Types.ObjectId.isValid(interviewId)) {
+            return res.status(400).json({ message: "Invalid report ID." })
+        }
 
         if (!["technical", "behavioral"].includes(type)) {
             return res.status(400).json({ message: "Invalid question type." })

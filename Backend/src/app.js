@@ -1,7 +1,6 @@
 const express = require('express')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
-const rateLimit = require('express-rate-limit')
 const helmet = require('helmet')
 const logger = require('./utils/logger')
 
@@ -12,22 +11,6 @@ app.set('trust proxy', 1)
 
 app.use(helmet())
 
-// Define Rate Limiters
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20, // Limit each IP to 20 auth requests per 15 mins
-    message: { message: "Too many authentication attempts. Please try again after 15 minutes." },
-    standardHeaders: true,
-    legacyHeaders: false,
-})
-
-const aiLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // 1 hour
-    max: 10, // Limit each IP to 10 AI requests per hour
-    message: { message: "Too many interview requests. Please try again after sometime." },
-    standardHeaders: true,
-    legacyHeaders: false,
-})
 
 app.use(express.json())
 app.use(cookieParser())
@@ -46,7 +29,7 @@ const authRouter = require("./routs/auth.routs")
 const interviewRouter = require("./routs/interview.routs")
 
 /* using all the routes here with rate limiting */
-app.use("/api/auth", authLimiter, authRouter)
+app.use("/api/auth", authRouter)
 app.use("/api/interview", interviewRouter)
 
 // Centralized error handler
