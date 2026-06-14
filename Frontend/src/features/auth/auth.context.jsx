@@ -5,18 +5,19 @@ export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)   // action loading (login/register/logout)
+    const [bootLoading, setBootLoading] = useState(true) // initial session check on app load
 
-    // Bootstrap: verify session cookie once when app loads
+    // Bootstrap: verify session cookie exactly once when app loads
     useEffect(() => {
         getMe()
             .then(data => setUser(data?.user ?? null))
             .catch(() => setUser(null))
-            .finally(() => setLoading(false))
+            .finally(() => setBootLoading(false))
     }, [])
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, setLoading }}>
+        <AuthContext.Provider value={{ user, setUser, loading, setLoading, bootLoading }}>
             {children}
         </AuthContext.Provider>
     )

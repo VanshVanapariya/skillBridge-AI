@@ -133,7 +133,8 @@ export const useInterview = () => {
             await deleteInterviewReport(interviewId)
             setReports(prev => prev.filter(r => r._id !== interviewId))
         } catch (error) {
-            console.log(error)
+            console.error(error)
+            alert(error.response?.data?.message || "Failed to delete the interview report. Please try again.")
         } finally {
             setLoading(false)
         }

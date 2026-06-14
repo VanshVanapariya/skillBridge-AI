@@ -111,12 +111,16 @@ const Interview = () => {
     const [activeNav, setActiveNav] = useState('technical')
     const [isRegeneratingTechnical, setIsRegeneratingTechnical] = useState(false)
     const [isRegeneratingBehavioral, setIsRegeneratingBehavioral] = useState(false)
+    const [notFound, setNotFound] = useState(false)
     const { report, getReportById, loading, downloadLoading, getResumePdf, regenerateQuestions } = useInterview()
     const { interviewId } = useParams()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (interviewId) {
-            getReportById(interviewId)
+            getReportById(interviewId).then(result => {
+                if (!result) setNotFound(true)
+            })
         }
     }, [interviewId])
 
@@ -137,11 +141,27 @@ const Interview = () => {
 
 
 
-    if (loading || !report) {
+    if (loading) {
         return (
             <main className='w-full min-h-screen flex flex-col items-center justify-center gap-6 bg-[var(--color-bg-page)]'>
                 <div className='w-12 h-12 border-4 border-[rgba(255,45,120,0.2)] border-t-[var(--color-accent)] rounded-full animate-spin'></div>
                 <h1 className='text-2xl font-semibold text-[var(--color-text-primary)] m-0 animate-pulse'>Loading your interview plan...</h1>
+            </main>
+        )
+    }
+
+    if (notFound || !report) {
+        return (
+            <main className='w-full min-h-screen flex flex-col items-center justify-center gap-4 bg-[var(--color-bg-page)]'>
+                <div className='text-5xl'>📋</div>
+                <h1 className='text-2xl font-semibold text-[var(--color-text-primary)] m-0'>Report Not Found</h1>
+                <p className='text-[var(--color-text-muted)] text-sm m-0'>This interview report may have been deleted or doesn't exist.</p>
+                <button
+                    onClick={() => navigate('/')}
+                    className='mt-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-purple-600 text-white text-sm font-semibold cursor-pointer border-none hover:opacity-90 transition-opacity'
+                >
+                    Back to Home
+                </button>
             </main>
         )
     }

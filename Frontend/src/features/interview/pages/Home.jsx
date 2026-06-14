@@ -40,16 +40,17 @@ const InteractiveLoader = () => {
 
 const Home = () => {
 
-    const { loading, generateReport, getReports, reports, deleteReport } = useInterview()
+    const { generateReport, getReports, reports, deleteReport } = useInterview()
     const [jobDescription, setJobDescription] = useState(() => localStorage.getItem('sb_jobDescription') || "")
     const [selfDescription, setSelfDescription] = useState(() => localStorage.getItem('sb_selfDescription') || "")
     const [fileName, setFileName] = useState("")
+    const [generating, setGenerating] = useState(false)  // only true during AI report generation
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
 
     useEffect(() => {
-        getReports()
+        getReports()  // fetch silently in background — does NOT trigger InteractiveLoader
     }, [])
 
     const handleFileChange = (e) => {
@@ -69,6 +70,7 @@ const Home = () => {
     }
 
     const handleGenerateReport = async () => {
+        setGenerating(true)
         try {
             const resumeFile = resumeInputRef.current?.files[0]
             const data = await generateReport({ jobDescription, selfDescription, resumeFile })
@@ -80,12 +82,14 @@ const Home = () => {
             }
         } catch (error) {
             alert(error.response?.data?.message || "Failed to generate interview report. The AI service might be busy (Rate Limit). Please wait a moment and try again.")
+        } finally {
+            setGenerating(false)
         }
     }
 
     const isFormValid = jobDescription.trim().length > 0 && (selfDescription.trim().length > 0 || fileName !== "")
 
-    if (loading) {
+    if (generating) {
         return <InteractiveLoader />
     }
 
