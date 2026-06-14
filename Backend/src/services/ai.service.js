@@ -1,8 +1,7 @@
 const { GoogleGenAI } = require("@google/genai")
 const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
-const puppeteer = require("puppeteer-core")
-const chromium = require("@sparticuz/chromium")
+const puppeteer = require("puppeteer")
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GEMINI_API_KEY
@@ -75,46 +74,17 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 }
 
 async function generatePdfFromHtml(htmlContent) {
-    const isProduction = process.env.NODE_ENV === "production"
-
-    let executablePath, args
-    if (isProduction) {
-        // Render / cloud: use @sparticuz/chromium binary
-        executablePath = await chromium.executablePath()
-        args = chromium.args
-    } else {
-        // Local dev: use puppeteer's own bundled Chrome
-        const localPuppeteer = require("puppeteer")
-        const browser = await localPuppeteer.launch({
-            headless: true,
-            args: ["--no-sandbox", "--disable-setuid-sandbox"]
-        })
-        const page = await browser.newPage()
-        await page.setJavaScriptEnabled(false)
-        await page.setContent(htmlContent, { waitUntil: "networkidle0" })
-        const pdfBuffer = await page.pdf({
-            format: "A4",
-            margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" }
-        })
-        await browser.close()
-        return pdfBuffer
-    }
-
     const browser = await puppeteer.launch({
-        executablePath,
-        headless: chromium.headless,
-        args: [...args, "--no-sandbox", "--disable-setuid-sandbox"]
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"]
     })
-
     const page = await browser.newPage()
     await page.setJavaScriptEnabled(false)
     await page.setContent(htmlContent, { waitUntil: "networkidle0" })
-
     const pdfBuffer = await page.pdf({
         format: "A4",
         margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" }
     })
-
     await browser.close()
     return pdfBuffer
 }
