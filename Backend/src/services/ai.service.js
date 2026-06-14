@@ -76,51 +76,387 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 async function generatePdfFromHtml(htmlContent) {
     const browser = await puppeteer.launch({
         headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+        args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage"
+        ]
     })
-    const page = await browser.newPage()
-    await page.setJavaScriptEnabled(false)
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
-    const pdfBuffer = await page.pdf({
-        format: "A4",
-        margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" }
-    })
-    await browser.close()
-    return pdfBuffer
+    try {
+        const page = await browser.newPage()
+        await page.setJavaScriptEnabled(false)
+        await page.setContent(htmlContent, { waitUntil: "domcontentloaded" })
+        const pdfBuffer = await page.pdf({
+            format: "A4",
+            margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" }
+        })
+        return pdfBuffer
+    } finally {
+        await browser.close()
+    }
+}
+
+const resumeDataSchema = z.object({
+    personalInfo: z.object({
+        name: z.string().describe("Candidate's full name"),
+        email: z.string().describe("Email address"),
+        phone: z.string().describe("Phone number"),
+        location: z.string().optional().describe("City, State or Country"),
+        linkedin: z.string().optional().describe("LinkedIn profile URL"),
+        github: z.string().optional().describe("GitHub profile URL"),
+    }),
+    careerObjective: z.string().describe("Professional/career objective summary"),
+    education: z.array(z.object({
+        degree: z.string().describe("Degree name, e.g. B.Tech – Information Technology"),
+        institution: z.string().describe("School or University name"),
+        location: z.string().optional().describe("City, State"),
+        startDate: z.string().optional().describe("e.g. 2023"),
+        endDate: z.string().optional().describe("e.g. 2027 or Present"),
+        details: z.string().optional().describe("GPA, CGPA or percentage")
+    })).optional(),
+    experience: z.array(z.object({
+        role: z.string().describe("Job title"),
+        company: z.string().describe("Company name"),
+        location: z.string().optional().describe("City, State"),
+        startDate: z.string().optional().describe("e.g. Jun 2025"),
+        endDate: z.string().optional().describe("e.g. Present"),
+        bulletPoints: z.array(z.string()).describe("ATS-friendly bullet points of achievements")
+    })).optional(),
+    projects: z.array(z.object({
+        title: z.string().describe("Project name"),
+        technologies: z.array(z.string()).describe("Technologies used, e.g. React, Node.js"),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        bulletPoints: z.array(z.string()).describe("Detailed bullet points describing the project")
+    })).optional(),
+    skills: z.array(z.object({
+        category: z.string().describe("Category, e.g. Languages, Tools"),
+        items: z.array(z.string()).describe("List of skills in this category")
+    })).optional(),
+    additionalSections: z.array(z.object({
+        title: z.string().describe("Section name, e.g. Certifications, Awards, volunteering"),
+        bulletPoints: z.array(z.string()).describe("Items in this section")
+    })).optional()
+})
+
+function renderResumeHtml(data) {
+    const p = data.personalInfo || {}
+    
+    // Contact Info Bar
+    const contactParts = []
+    if (p.phone) contactParts.push(p.phone)
+    if (p.email) contactParts.push(`<a href="mailto:${p.email}">${p.email}</a>`)
+    if (p.location) contactParts.push(p.location)
+    if (p.linkedin) {
+        const displayLinkedin = p.linkedin.replace(/https?:\/\/(www\.)?/, "")
+        contactParts.push(`<a href="${p.linkedin}" target="_blank">${displayLinkedin}</a>`)
+    }
+    if (p.github) {
+        const displayGithub = p.github.replace(/https?:\/\/(www\.)?/, "")
+        contactParts.push(`<a href="${p.github}" target="_blank">${displayGithub}</a>`)
+    }
+    const contactInfoHtml = contactParts.join(" | ")
+
+    // Career Objective
+    const objectiveHtml = data.careerObjective 
+        ? `<div class="section">
+            <div class="section-title">Career Objective</div>
+            <p class="objective-text">${data.careerObjective}</p>
+           </div>`
+        : ""
+
+    // Education
+    let educationHtml = ""
+    if (data.education && data.education.length > 0) {
+        const items = data.education.map(edu => {
+            const dateRange = [edu.startDate, edu.endDate].filter(Boolean).join(" – ")
+            const locationStr = edu.location ? ` | ${edu.location}` : ""
+            return `
+                <div class="item">
+                    <div class="item-header">
+                        <span>${edu.degree}</span>
+                        <span>${dateRange}</span>
+                    </div>
+                    <div class="item-subheader">
+                        <span>${edu.institution}${locationStr}</span>
+                        ${edu.details ? `<span>${edu.details}</span>` : ""}
+                    </div>
+                </div>
+            `
+        }).join("")
+        educationHtml = `
+            <div class="section">
+                <div class="section-title">Education</div>
+                ${items}
+            </div>
+        `
+    }
+
+    // Industrial Experience
+    let experienceHtml = ""
+    if (data.experience && data.experience.length > 0) {
+        const items = data.experience.map(exp => {
+            const dateRange = [exp.startDate, exp.endDate].filter(Boolean).join(" – ")
+            const locationStr = exp.location ? ` | ${exp.location}` : ""
+            const bullets = exp.bulletPoints.map(bp => `<li>${bp}</li>`).join("")
+            return `
+                <div class="item">
+                    <div class="item-header">
+                        <span>${exp.role} | ${exp.company}</span>
+                        <span>${dateRange}</span>
+                    </div>
+                    ${locationStr ? `<div class="item-subheader"><span>${locationStr.replace(/^ \| /, "")}</span></div>` : ""}
+                    <ul class="item-bullets">
+                        ${bullets}
+                    </ul>
+                </div>
+            `
+        }).join("")
+        experienceHtml = `
+            <div class="section">
+                <div class="section-title">Industrial Experience</div>
+                ${items}
+            </div>
+        `
+    }
+
+    // Projects
+    let projectsHtml = ""
+    if (data.projects && data.projects.length > 0) {
+        const items = data.projects.map(proj => {
+            const dateRange = [proj.startDate, proj.endDate].filter(Boolean).join(" – ")
+            const techStack = proj.technologies && proj.technologies.length > 0
+                ? ` | ${proj.technologies.join(" · ")}`
+                : ""
+            const bullets = proj.bulletPoints.map(bp => `<li>${bp}</li>`).join("")
+            return `
+                <div class="item">
+                    <div class="item-header">
+                        <span>${proj.title}${techStack}</span>
+                        <span>${dateRange}</span>
+                    </div>
+                    <ul class="item-bullets">
+                        ${bullets}
+                    </ul>
+                </div>
+            `
+        }).join("")
+        projectsHtml = `
+            <div class="section">
+                <div class="section-title">Projects</div>
+                ${items}
+            </div>
+        `
+    }
+
+    // Skills
+    let skillsHtml = ""
+    if (data.skills && data.skills.length > 0) {
+        const rows = data.skills.map(skillSet => `
+            <div class="skills-row">
+                <div class="skills-category">${skillSet.category}:</div>
+                <div class="skills-items">${skillSet.items.join(", ")}</div>
+            </div>
+        `).join("")
+        skillsHtml = `
+            <div class="section">
+                <div class="section-title">Skills & Certifications</div>
+                <div class="skills-grid">
+                    ${rows}
+                </div>
+            </div>
+        `
+    }
+
+    // Additional Custom Sections
+    let additionalHtml = ""
+    if (data.additionalSections && data.additionalSections.length > 0) {
+        additionalHtml = data.additionalSections.map(sec => {
+            const bullets = sec.bulletPoints.map(bp => `<li>${bp}</li>`).join("")
+            return `
+                <div class="section">
+                    <div class="section-title">${sec.title}</div>
+                    <ul class="item-bullets">
+                        ${bullets}
+                    </ul>
+                </div>
+            `
+        }).join("")
+    }
+
+    // Put everything together
+    return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>${p.name || "Resume"}</title>
+            <style>
+                body {
+                    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                    color: #2D3748;
+                    line-height: 1.4;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 10pt;
+                }
+                .container {
+                    padding: 0;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 15px;
+                }
+                .name {
+                    font-size: 20pt;
+                    font-weight: 700;
+                    margin: 0 0 5px 0;
+                    text-transform: uppercase;
+                    color: #1A202C;
+                    letter-spacing: 0.5px;
+                }
+                .contact-info {
+                    font-size: 8.5pt;
+                    color: #4A5568;
+                    margin: 0;
+                }
+                .contact-info a {
+                    color: #4A5568;
+                    text-decoration: none;
+                }
+                .section {
+                    margin-bottom: 15px;
+                    page-break-inside: avoid;
+                }
+                .section-title {
+                    font-size: 11pt;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: #1A202C;
+                    border-bottom: 1px solid #CBD5E0;
+                    padding-bottom: 3px;
+                    margin: 0 0 8px 0;
+                    letter-spacing: 0.5px;
+                }
+                .objective-text {
+                    font-size: 9.5pt;
+                    text-align: justify;
+                    margin: 0;
+                    color: #2D3748;
+                }
+                .item {
+                    margin-bottom: 8px;
+                    page-break-inside: avoid;
+                }
+                .item-header {
+                    display: flex;
+                    justify-content: space-between;
+                    font-weight: 700;
+                    font-size: 10pt;
+                    color: #2D3748;
+                    margin-bottom: 2px;
+                }
+                .item-subheader {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 9pt;
+                    color: #4A5568;
+                    margin-bottom: 4px;
+                    font-style: italic;
+                }
+                .item-bullets {
+                    margin: 0 0 6px 0;
+                    padding-left: 20px;
+                }
+                .item-bullets li {
+                    font-size: 9.5pt;
+                    margin-bottom: 2px;
+                    color: #2D3748;
+                }
+                .skills-grid {
+                    display: table;
+                    width: 100%;
+                    font-size: 9.5pt;
+                }
+                .skills-row {
+                    display: table-row;
+                }
+                .skills-category {
+                    display: table-cell;
+                    font-weight: 700;
+                    width: 160px;
+                    padding-bottom: 4px;
+                    color: #2D3748;
+                }
+                .skills-items {
+                    display: table-cell;
+                    padding-bottom: 4px;
+                    color: #2D3748;
+                }
+                @media print {
+                    body {
+                        font-size: 9.5pt;
+                    }
+                    .section {
+                        page-break-inside: avoid;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1 class="name">${p.name || ""}</h1>
+                    <div class="contact-info">
+                        ${contactInfoHtml}
+                    </div>
+                </div>
+                
+                ${objectiveHtml}
+                ${educationHtml}
+                ${experienceHtml}
+                ${projectsHtml}
+                ${skillsHtml}
+                ${additionalHtml}
+            </div>
+        </body>
+        </html>
+    `
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
+    const prompt = `You are an expert resume writer and ATS optimization specialist. 
+                    Your task is to generate a professional, high-impact resume tailored for the target job description based on the candidate's details.
 
-    const resumePdfSchema = z.object({
-        html: z.string().describe("The HTML content of the resume which can be converted to PDF using any library like puppeteer")
-    })
+                    Candidate Details:
+                    Resume Content: ${resume}
+                    Self Description: ${selfDescription}
+                    Target Job Description: ${jobDescription}
 
-    const prompt = `Generate resume for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
-                        Job Description: ${jobDescription}
-
-                        the response should be a JSON object with a single field "html" which contains the HTML content of the resume which can be converted to PDF using any library like puppeteer.
-                        The resume should be tailored for the given job description and should highlight the candidate's strengths and relevant experience. The HTML content should be well-formatted and structured, making it easy to read and visually appealing.
-                        The content of resume should be not sound like it's generated by AI and should be as close as possible to a real human-written resume.
-                        you can highlight the content using some colors or different font styles but the overall design should be simple and professional.
-                        The content should be ATS friendly, i.e. it should be easily parsable by ATS systems without losing important information.
-                        The resume should not be so lengthy, it should ideally be 1-2 pages long when converted to PDF. Focus on quality rather than quantity and make sure to include all the relevant information that can increase the candidate's chances of getting an interview call for the given job description.
+                    Instructions:
+                    1. Tailor the content to highlight relevant experience, projects, and skills for the target job.
+                    2. Maintain a highly professional, first-person tone.
+                    3. Rewrite bullet points in work experience and projects to be action-oriented, starting with strong action verbs, and quantify achievements where possible.
+                    4. Ensure all dates, degrees, companies, and project titles are extracted accurately.
+                    5. Categorize skills logically (e.g. Languages, Frontend & Backend, Tools, Machine Learning) and list specific tools and technologies.
+                    6. If the candidate has any other important sections like Certifications, volunteering, or awards, include them in the additionalSections array.
+                    7. Output strictly as JSON matching the requested schema. Do not include any HTML formatting inside the text values.
                     `
+
     const response = await ai.models.generateContent({
         model: "gemini-3.1-flash-lite",
         contents: prompt,
         config: {
             responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(resumePdfSchema),
+            responseSchema: zodToJsonSchema(resumeDataSchema),
         }
     })
 
     const jsonContent = JSON.parse(response.text)
+    const compiledHtml = renderResumeHtml(jsonContent)
 
-    const pdfBuffer = await generatePdfFromHtml(jsonContent.html)
+    const pdfBuffer = await generatePdfFromHtml(compiledHtml)
     return pdfBuffer
-
 }
 
 async function generateNewQuestions({ resume, selfDescription, jobDescription, existingQuestions, type }) {
